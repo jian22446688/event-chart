@@ -41,12 +41,11 @@
                 return
             }
         },
-        mounted(){
-            this.init()
-        },
         methods: {
-            init(){
-                console.log('tables -- init')
+            // 设置 表头和数据
+            setTableDataEmtyp(){
+                this.tableList = []
+                this.tableCloumns = []
             },
 
             // 获取表头 2018-10-16 暂时没用
@@ -72,14 +71,9 @@
                 return arrl
             },
 
-            getTableDataBegin(data, is_loading){
-                if (is_loading){
-                    let td = {loading: is_loading, data: null}
-                    this.$emit('on-tab-updateCharts', td)
-                    return
-                }
+            getTableDataBegin(data){
                 if (data != null){
-                    this.getTableDataMan(data)
+                    return this.getTableDataMan(data)
                 }
             },
 
@@ -125,6 +119,7 @@
                             this.getChartOptionData(data,tempClo, this.$d_Global.c_chartType))}
                     this.$emit('on-tab-updateCharts', td)
                 }
+                return this.tableList
             },
 
             getChartOptionData(rd, col, cType){

@@ -55,6 +55,7 @@ Vue.prototype.$http= axios;
 
 Vue.prototype.$d_Global = {
     is_bookmark:false,
+    c_query: null,
     c_date: '',
     c_chartType: '',
     c_top_tableValue: '',

@@ -85,6 +85,7 @@
                 chartsType: 'piller',
                 chartTable: null,
                 chartTable1: null,
+                tableData: null,
                 isEventData: true,
                 modelDate: 'day',
                 dateOpen: false,
@@ -122,7 +123,6 @@
                         }
                     ]
                 },
-
                 inforCardData: [
                     { title: '新增用户', icon: 'md-person-add', count: 803, color: '#2d8cf0' },
                     { title: '累计点击', icon: 'md-locate', count: 23432, color: '#19be6b' },
@@ -139,14 +139,6 @@
                 ],
 
                 barData: {"2018-07-01":300, "2018-07-02":500,}
-            }
-        },
-        computed: {
-            getChartsData(){
-                return this.chartsData;
-            },
-            getChartsTable(){
-                return this.chartTable
             }
         },
         created(){
@@ -226,15 +218,28 @@
                 this.titleValue = t_tN + '的' + t_tC
                 this.initChartsData(this.chartsType, this.modelDate)
             },
+            // initChartsData(type, date) {
+            //     let data = this.chartsData
+            //     if (data == null) { return; }
+            //     let option = dataType.getOptionType(data, type, date)
+            //     this.chartDataInit(option)
+            // },
 
             initChartsData(type, date) {
+                console.log('initChar Data ')
                 let data = this.chartsData
                 if (data == null) { return; }
-                let option = dataType.getOptionType(data, type, date)
+                let quer = this.$d_Global.c_query
+                let option = null
+                if(!(quer.param.group_by.length < 1)){
+                    option = dataType.getTableOption(data[date], this.tableData, quer, type)
+                }else {
+                    option = dataType.getOptionType(data[date], type)
+                }
                 this.chartDataInit(option)
             },
 
-            setOption(data, isloading = false){
+            setOption(data, table, isloading = false){
                 if(isloading){
                     this.dom.showLoading({
                         text: '数据读取中...',
@@ -247,16 +252,14 @@
                         addDataAnimation:true,
                     })
                     return
-                }else {
-                    this.dom.hideLoading()
                 }
+                this.dom.hideLoading()
+                this.chartsData = data
+                this.tableData = table
                 let t_tN = this.$d_Global.c_top_tableValue
                 let t_tC = dataType.getLabelCascaer(this.$d_Global.c_top_cascaerVaule)
                 this.titleValue = t_tN + '的' + t_tC
-                console.log('charts -   setOption')
-                let option = dataType.getTableOption(data)
-                console.log(data)
-                this.chartDataInit(option)
+                this.initChartsData(this.chartsType, this.modelDate)
             },
             chartDataInit(option){
                 if(option){

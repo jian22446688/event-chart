@@ -37,8 +37,7 @@
             <!--表格内容-->
             <Tables ref="tebles"
                     :query="allParam"
-                    :result="chartsData"
-                    @on-tab-updateCharts="onTabUpdateCharts"></Tables>
+                    :result="chartsData"></Tables>
 
             <div style="height: 30px"></div>
 
@@ -68,6 +67,7 @@
         },
         data () {
             return {
+                tableData: null,
                 allData: null,
                 chartsData: null,
                 chartsType: 'd',
@@ -272,27 +272,43 @@
             onRefresh(pa = null){
                 let param = datatype.param
                 if (pa != null){ param = pa }
-                this.$refs.tebles.getTableDataBegin(null, true)
+                this.$d_Global.c_query = param
+                this.onTabUpdateCharts(null, true)
                 this.$http.post('/event', param).then(res =>{
                     let data = res.data
                     this.allData = data
                     this.chartsData = data
                     console.log('index- psot event')
                     console.log(this.chartsData)
-
-                    this.$refs.tebles.getTableDataBegin(this.chartsData, false)
-
+                    this.onTabUpdateCharts(this.chartsData)
                 }).catch(err =>{
                     console.log(err);
                 });
             },
 
-            onTabUpdateCharts(par){
-                if (par.loading){
-                    this.$refs.chartsGroup.setOption(null, true);
-                } else {
-                    this.$refs.chartsGroup.setOption(par.data);
+            onTabUpdateCharts(par, is_loading = false){
+                console.log('tabUpdate')
+                if (is_loading){
+                    this.$refs.tebles.setTableDataEmtyp()
+                    this.$refs.chartsGroup.setOption(null, null, true)
+                    return
                 }
+                this.tableData = this.$refs.tebles.getTableDataBegin(par, false)
+
+                this.$refs.chartsGroup.setOption(par, this.tableData, false);
+
+
+                // if (is_loading){
+                //     this.$refs.chartsGroup.setOption(null, true);
+                // }else {
+                //     // 带数据更新 图表
+                //     if (par != null) {
+                //         this.$refs.chartsGroup.setOption(null, false);
+                //     }
+                //
+                // }
+
+
             },
 
             // top-table field 更换

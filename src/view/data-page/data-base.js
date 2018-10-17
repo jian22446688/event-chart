@@ -269,8 +269,66 @@ export const getLabelCascaer = (val) => {
 /**
  * 获取 Table Option
  */
-export const getTableOption = (data, type='line') => {
-    let option = {
+export const getTableOption = (data, tablist, col, type='line') => {
+    let option = null;
+    let dataObj = data;
+    switch (type) {
+        case 'line': // 线状图
+            let clline = getChartOptionData(data, tablist, col, 'line')
+            console.log(clline)
+            let opbline = {
+                tooltip: {trigger: 'item', // item axis none
+                    axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}},
+                    formatter: '{b0} <br />{a0}: {c0}'
+                },
+                legend: {orient: 'horizontal', bottom:'bottom', data: clline.legend},
+                grid: {top: '3%', left: '1.2%', right: '1%', bottom: '12%', containLabel: true},
+                xAxis: [{type: 'category', data: clline.xAxix}], yAxis: [{type: 'value'}], series: clline.series
+            }
+            option = opbline
+            break;
+        case 'piller': // 柱状图
+            let clData = getChartOptionData(data, tablist, col, 'bar')
+            console.log(clData)
+            let opb = {
+                tooltip: {trigger: 'item', // item axis none
+                    axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}},
+                    formatter: '{b0} <br />{a0}: {c0}'
+                },
+                legend: {orient: 'horizontal', bottom:'bottom', data: clData.legend},
+                grid: {top: '3%', left: '1.2%', right: '1%', bottom: '12%', containLabel: true},
+                xAxis: [{type: 'category', data: clData.xAxix}], yAxis: [{type: 'value'}], series: clData.series
+            }
+            option = opb
+            break;
+        case 'cake': // 饼状图
+            let obj = []
+            let tabs = dataObj.x.map(dv => {
+                return tablist.filter(itt => itt.date === dv)
+            })
+            let tempClo = col.param.group_by.map(val => {return {title: val, key: val}})
+            tabs.forEach(tabitem => {
+                let oob = {name: '', value: 335}
+                let vStr = tempClo[tempClo.length -1].title + '_count'
+                if (tabitem.length > 0 ){
+                    oob.name = tabitem[tabitem.length - 1]['lable']
+                    oob.value = tabitem[tabitem.length - 1][vStr]
+                    obj.push(oob)
+                }
+            })
+            let legend = obj.map(_ => _.name)
+            let opcake = {tooltip: {trigger: 'item', formatter: '{b} : {c}'},
+                legend: {orient: 'vertical', left: 'left', data: legend},
+                series: [{
+                    type: 'pie', radius: '55%', center: ['50%', '60%'], data: obj,
+                    itemStyle: {emphasis: {shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)'}}}
+                ]
+            }
+            option = opcake
+            break;
+    }
+
+    let opb = {
         tooltip: {trigger: 'item', // item axis none
                 axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}
                 },
@@ -280,7 +338,6 @@ export const getTableOption = (data, type='line') => {
         grid: {top: '3%', left: '1.2%', right: '1%', bottom: '12%', containLabel: true},
         xAxis: [{type: 'category', data: data.xAxix}], yAxis: [{type: 'value'}], series: data.series
     }
-
     return option
 }
 
@@ -294,106 +351,56 @@ export const getOptionType = (data, type = 'line') => {
     let option = null;
     let dataObj = data;
 
-    if(!dataObj[date] || dataObj[date].x.length < 1){
+    if(!dataObj || dataObj.x.length < 1){
         return option
     }
     switch (type) {
         case 'line': // 线状图
             let oline = {}
-            dataObj[date].x.map((item, i) => {
-                oline[item] = dataObj[date].y[i]
+            dataObj.x.map((item, i) => {
+                oline[item] = dataObj.y[i]
             })
             let xAxisDataline = Object.keys(oline)
             let seriesDataline = Object.values(oline)
             let opt = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        label: {
-                            backgroundColor: '#6a7985'
-                        }
-                    }
+                tooltip: {trigger: 'axis',
+                    axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}
                 },
-                xAxis: [
-                    {
-                        type : 'category',
-                        boundaryGap : false,
-                        data: xAxisDataline
-                    }
-                ],
-                yAxis: [
-                    {
-                        type: 'value'
-                    }
-                ],
-                series: [
-                    {
-                        data: seriesDataline,
-                        type: 'line'
-                    }
-                ]
+                xAxis: [{type : 'category', boundaryGap : false, data: xAxisDataline}],
+                yAxis: [{type: 'value'}],
+                series: [{data: seriesDataline, type: 'line'}]
             }
             option = opt
             break;
         case 'piller': // 柱状图
             let pobj = {}
-            dataObj[date].x.map((item, i) => {
-                pobj[item] = dataObj[date].y[i]
+            dataObj.x.map((item, i) => {
+                pobj[item] = dataObj.y[i]
             })
             let xAxisData = Object.keys(pobj)
             let seriesData = Object.values(pobj)
             let op = {
-                tooltip: {
-                    trigger: 'axis',
-                },
-                xAxis: {
-                    type: 'category',
-                    data: xAxisData
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [{
-                    data: seriesData,
-                    type: 'bar'
-                }]
+                tooltip: {trigger: 'axis',},
+                xAxis: {type: 'category', data: xAxisData},
+                yAxis: {type: 'value'},
+                series: [{data: seriesData, type: 'bar'}]
             }
             option = op
             break;
         case 'cake': // 饼状图
             let obj = []
-            dataObj[date].x.map((item, i) => {
+            dataObj.x.map((item, i) => {
                 let oj = {name: '直接访问', value: 335}
-                oj.name = dataObj[date].x[i]
-                oj.value = dataObj[date].y[i]
+                oj.name = dataObj.x[i]
+                oj.value = dataObj.y[i]
                 obj.push(oj)
             })
             let legend = obj.map(_ => _.name)
             let opcake = {
-
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{b} : {c}'
-                },
-                legend: {
-                    orient: 'vertical',
-                    left: 'left',
-                    data: legend
-                },
-                series: [
-                    {
-                        type: 'pie',
-                        radius: '55%',
-                        center: ['50%', '60%'],
-                        data: obj,
-                        itemStyle: {
-                            emphasis: {
-                                shadowBlur: 10,
-                                shadowOffsetX: 0,
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                            }
-                        }
+                tooltip: {trigger: 'item', formatter: '{b} : {c}'},
+                legend: {orient: 'vertical', left: 'left', data: legend},
+                series: [{type: 'pie', radius: '55%', center: ['50%', '60%'], data: obj,
+                        itemStyle: {emphasis: {shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)'}}
                     }
                 ]
             }
@@ -401,6 +408,48 @@ export const getOptionType = (data, type = 'line') => {
             break;
     }
     return option
+}
+
+/**
+ * 获取图表数据
+ * @param rd
+ * @param col
+ * @param cType
+ * @returns {{series: Array, legend: Array, xAxix: *}}
+ */
+export const  getChartOptionData = (rdata, tblist, col, cType) =>{
+    let tempClo = col.param.group_by.map(val => {return {title: val, key: val}})
+    let data = rdata
+    let tableDa = tblist.map(taDa => {
+        let stri = ''
+        tempClo.forEach((clotVal, index) => {
+            if (index === 0) {stri = taDa[clotVal.title]}
+            else {stri += '-' + taDa[clotVal.title]}
+        })
+        taDa['lable'] = stri
+        return taDa
+    })
+    let cData = data.x.map((val, index) =>{
+        return tblist.filter(item => item.date === val)
+    })
+    let series = []
+    let legends = []
+    let xAxis = data.x
+    cData.forEach((item, index)=> {
+        item.forEach(serit => {
+            let seritem = {name: serit.lable, type: cType, stack: '总量', data: []}
+            legends.push(serit.lable)
+            seritem.data = cData.map(serVal => {
+                let vStr = tempClo[tempClo.length -1].title + '_count'
+                if (serVal.length > 0 ){return serVal[serVal.length - 1][vStr]}
+                return 0
+            })
+            series.push(seritem)
+        })
+    })
+    let cOption = {series: series, legend: legends, xAxix: xAxis}
+
+    return cOption
 }
 
 /**
@@ -458,39 +507,6 @@ const getTerm = (base, group, data, result) =>{
         }
     }
 }
-
-
-
-// const getkey = (data, index = 0) =>{
-//     return Object.keys(data)[0]
-// }
-//
-// export const getTerm = (base, group, data, result) => {
-//     var ng = group.shift()
-//     if(group.length > 0){
-//         // 有下一层
-//         for(var i in data[ng + "_term"]){
-//             var nb = {...base}
-//             var cd = data[ng + "_term"][i]
-//             nb[ng] = getkey(cd)
-//             nb[ng + '_count'] = cd[nb[ng]].count
-//             var nd = {...cd[nb[ng]]}
-//             this.getTerm({...nb}, group, nd, result)
-//         }
-//     } else {
-//         // 最后一层
-//         for(var i in data[ng + "_term"]){
-//             var key = getKey(data[ng + "_term"][i])
-//             var nb = {...base}
-//             var d = {...data[ng + "_term"][i][key]}
-//             nb[ng] = key
-//             nb[ng + '_count'] = d.count
-//             delete d.count
-//             nb = {...nb, ...d}
-//             result.push(nb)
-//         }
-//     }
-// }
 
 
 export const chartTableTest = {
