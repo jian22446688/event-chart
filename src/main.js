@@ -43,8 +43,6 @@ axios.interceptors.request.use(function (config) {
     return Promise.reject(error);
 })
 
-
-
 axios.interceptors.response.use((config)=>{
     return config;
 }, (err)=>{
@@ -54,12 +52,16 @@ axios.interceptors.response.use((config)=>{
 Vue.prototype.$http= axios;
 
 Vue.prototype.$d_Global = {
+    $vue: new Vue,
     is_bookmark:false,
     c_query: null,
     c_date: '',
     c_chartType: '',
     c_top_tableValue: '',
-    c_top_cascaerVaule: ''
+    c_top_cascaerVaule: '',
+    c_top_cascaerVauleId: '',
+    c_top_cascaerCountNmae: '',
+    c_tableData: null,
 }
 
 Vue.use(iView)

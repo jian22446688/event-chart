@@ -137,6 +137,7 @@
                     {value: 234, name: '联盟广告'},
                     {value: 135, name: '视频广告'},
                 ],
+                indexObj: null,
 
                 barData: {"2018-07-01":300, "2018-07-02":500,}
             }
@@ -231,15 +232,19 @@
                 if (data == null) { return; }
                 let quer = this.$d_Global.c_query
                 let option = null
-                if(!(quer.param.group_by.length < 1)){
-                    option = dataType.getTableOption(data[date], this.tableData, quer, type)
-                }else {
-                    option = dataType.getOptionType(data[date], type)
-                }
+                // if(!(quer.param.group_by.length < 1)){
+                //     let sum = this.$d_Global.c_top_cascaerCountNmae
+                //     option = dataType.getTableOption(data[date], this.tableData, quer, type, sum)
+                // }else {
+                //     option = dataType.getOptionType(data[date], type)
+                // }
+                let sum = this.$d_Global.c_top_cascaerCountNmae
+                this.tableData = this.indexObj.$refs.tebles.getTableDataBegin(data, false)
+                option = dataType.getOptionData(this, data[date], this.tableData, type, sum)
                 this.chartDataInit(option)
             },
 
-            setOption(data, table, isloading = false){
+            setOption(data, table, isloading = false, indexself){
                 if(isloading){
                     this.dom.showLoading({
                         text: '数据读取中...',
@@ -253,8 +258,11 @@
                     })
                     return
                 }
+                this.indexObj = indexself
                 this.dom.hideLoading()
                 this.chartsData = data
+                this.isEventData = false;
+                if (this.dom) this.dom.clear()
                 this.tableData = table
                 let t_tN = this.$d_Global.c_top_tableValue
                 let t_tC = dataType.getLabelCascaer(this.$d_Global.c_top_cascaerVaule)

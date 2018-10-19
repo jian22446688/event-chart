@@ -49,12 +49,12 @@
                             <InputNumber
                                 v-model="sitem.section_2"
                                 size="large"
-                                @on-blur="onBlurChange"></InputNumber>
+                                @keyup.enter.native="onBlurChange"></InputNumber>
                        </template>
                         <template v-else>
                             <Input style="min-width: 110px; width: auto;"
                                    v-model="sitem.inputValue" size="large"
-                                   @on-blur="onBlurChange"/>
+                                   @keyup.enter.native="onBlurChange"/>
                         </template>
                     </span>
 
@@ -118,6 +118,12 @@
             }
         },
 
+        created(){
+            this.$d_Global.$vue.$on('on-g-filter', ()=> {
+                console.log('g-filete')
+            })
+        },
+
         methods: {
             bookmarkInit(arr){
                 if (arr) {
@@ -134,7 +140,7 @@
                             section_1: item.section_1,
                             section_2: item.section_2
                         }
-                        this.onfieldChange(obj)
+                        this.onBookmarkinit(obj)
                         temparr.push(obj)
                     })
                     this.selectList = temparr
@@ -166,9 +172,27 @@
                 this.$emit('onDeleteItem', item)
             },
 
+            // 初始化 书签的
+            onBookmarkinit(val, vindex) {
+                this.tableField.map((item, index)=>{
+                    if(val.fieldValue === item.name){
+                        val.condData = null
+                        let obj = dataType.getFiledTypeArray(item.type)
+                        val.condData = obj
+                        val.condValue = obj[0].value
+                        if (item.is_enum) {
+                            val.is_enum = true
+                            val.enumList = item.values
+                        }else {
+                            val.is_enum = false
+                            val.enumList = null
+                        }
+                    }
+                })
+            },
+
             // 筛选表 选择
             onfieldChange(val, vindex) {
-                console.log(val);
                 this.tableField.map((item, index)=>{
                     if(val.fieldValue === item.name){
                         val.condData = null

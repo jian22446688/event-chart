@@ -57,7 +57,7 @@
         watch: {
             // 数据更换事件
             tableField(val, oval){
-                this.$emit('on-fieldChange', val)
+                this.$d_Global.$vue.$emit('on-g-filterChange', val)
             },
             dataBaseValue(val, oval){
                 // this.onDataBaseChange(val)
@@ -65,6 +65,7 @@
         },
         created(){
             this.$d_Global.c_top_cascaerVaule = this.cascaderValue
+            this.$d_Global.c_top_cascaerCountNmae = dataType.getTopCascaerName(this.cascaderValue)
         },
         mounted(){
             this.init();
@@ -102,14 +103,18 @@
             onDataBaseChange(value){
                 this.cascaderValue = ['a_1'];
                 localStorage.setItem('indexBase', value);
+                let tId = 0
                 for (let item in this.tableData) {
                     let reus = this.tableData[item].tables.find(val => val.name === value)
                     if (reus){
+                        tId = reus.id
                         this.$d_Global.c_top_tableValue = reus.alias || reus.name
+                        this.$d_Global.c_top_cascaerVauleId = tId
                         break
                     }
                 }
-                this.$http.get('/table/' + value + '/fields').then(res => {
+
+                this.$http.get('/table/' + tId + '/fields').then(res => {
                     let data = res.data
                     this.tableField = data
                     let arr = this.initCascaderData(data);
@@ -120,18 +125,13 @@
             },
 
             initCascaderData(data){
-                let arr = []
-                arr = arr.concat(dataType.defaultType)
+                let arr = [{value: 'a_1', label: '总次数'}]
+                if (this.$d_Global.c_top_cascaerVauleId === 0){
+                    arr = arr.concat(dataType.defaultType)
+                }
                 data.map((item, index) => {
-                    let obj = {
-                        value: 'a_4',
-                        label: 'anylst_var',
-                        type: 'date',
-                        children: [{
-                                value: 'v_1',
-                                label: 'var_name',
-                                children: []
-                            },]
+                    let obj = {value: 'a_4', label: 'anylst_var', type: 'date',
+                        children: [{value: 'v_1', label: 'var_name', children: []}]
                     }
                     obj.value = item.name
                     obj.label = item.alias ? item.alias : item.name
@@ -144,6 +144,9 @@
             onCascaerChange(data, selectedData){
                 this.cascaderValue = data
                 this.$d_Global.c_top_cascaerVaule = data
+                this.$d_Global.c_top_cascaerCountNmae = dataType.getTopCascaerName(data)
+                console.log('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr')
+                console.log(this.$d_Global.c_top_cascaerCountNmae)
                 this.$emit('on-CascaerChange')
                 console.log(this.cascaderValue)
             }

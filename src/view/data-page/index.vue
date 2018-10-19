@@ -12,7 +12,6 @@
                     <div class="ops-item">
                         <top-table ref="topTable"
                                    @on-addFiltrate="onFiltrate"
-                                   @on-fieldChange="onFieldChange"
                                    @on-CascaerChange="onUpdateData"></top-table>
                     </div>
 
@@ -87,6 +86,11 @@
                 return ob
             }
         },
+        created(){
+            this.$d_Global.$vue.$on('on-g-filterChange', (val)=>{
+                this.fieldData = val
+            })
+        },
         mounted(){
             this.$nextTick(() => {
 
@@ -101,7 +105,7 @@
             },
 
             onChartsChange(){
-                this.$refs.tebles.getTableDataBegin(this.chartsData, false)
+                this.tableData = this.$refs.tebles.getTableDataBegin(this.chartsData, false)
             },
 
             // 添加筛选 栏目
@@ -280,9 +284,11 @@
                     this.chartsData = data
                     console.log('index- psot event')
                     console.log(this.chartsData)
+
                     this.onTabUpdateCharts(this.chartsData)
                 }).catch(err =>{
                     console.log(err);
+                    this.onTabUpdateCharts(null, false)
                 });
             },
 
@@ -293,27 +299,8 @@
                     this.$refs.chartsGroup.setOption(null, null, true)
                     return
                 }
-                this.tableData = this.$refs.tebles.getTableDataBegin(par, false)
-
-                this.$refs.chartsGroup.setOption(par, this.tableData, false);
-
-
-                // if (is_loading){
-                //     this.$refs.chartsGroup.setOption(null, true);
-                // }else {
-                //     // 带数据更新 图表
-                //     if (par != null) {
-                //         this.$refs.chartsGroup.setOption(null, false);
-                //     }
-                //
-                // }
-
-
-            },
-
-            // top-table field 更换
-            onFieldChange(field){
-                this.fieldData = field
+                // this.tableData = this.$refs.tebles.getTableDataBegin(par, false)
+                this.$refs.chartsGroup.setOption(par, this.tableData, false, this);
             },
         }
     }

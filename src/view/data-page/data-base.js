@@ -24,18 +24,8 @@ export const FILTER_GROUP_K_2           = 'k_2'
 
 
 export const defaultType = [
-    {
-        value: 'a_1',
-        label: '总次数'
-    },
-    {
-        value: 'a_2',
-        label: '触发用户数'
-    },
-    {
-        value: 'a_3',
-        label: '人均次数'
-    }
+    {value: 'a_2', label: '触发用户数'},
+    {value: 'a_3', label: '人均次数'}
 ]
 
 export const longDateType = [
@@ -244,7 +234,12 @@ export const getEventParam = (data) =>{
     return param
 }
 
-export const getLabelCascaer = (val) => {
+/**
+ * 获取 top 字段的选择昵称
+ * @param val
+ * @returns {string}
+ */
+export const getLabelCascaer = val => {
     let label = ''
     if (val.length > 1) {
         label = val[0] + '的'
@@ -267,28 +262,63 @@ export const getLabelCascaer = (val) => {
 }
 
 /**
+ * 获取 top 字段的key 值名称 用于获取统计数据
+     android_id: "317ab1efc2d5095d"
+     android_id_count: 182
+     count: 19996
+     date: "2018-08-16"
+     distinct: 103
+     distinct_avg: 1.766990291262136
+     lable: "317ab1efc2d5095d"
+ * @param val
+ */
+export const getTopCascaerName = val => {
+    let name = 'count'
+    if(val.length > 1){
+        switch (val[1]) {
+            case 'q_5': name = 'distinct'; break;
+            case 'n_1': name = 'stat_max'; break;
+            case 'n_2': name = 'stat_min'; break;
+            case 'n_3': name = 'stat_sum'; break;
+            case 'n_4': name = 'stat_avg'; break;
+        }
+       return name
+    }
+    if(val.length === 1){
+        switch (val[0]) {
+            case 'a_1': name = 'count'; break;
+            case 'a_2': name = 'distinct_avg'; break;
+            case 'a_3': name = 'distinct'; break;
+        }
+    }
+    return name
+}
+
+
+/**
  * 获取 Table Option
  */
-export const getTableOption = (data, tablist, col, type='line') => {
+export const getTableOption = (data, tablist, col, type='line', count='count') => {
     let option = null;
     let dataObj = data;
     switch (type) {
         case 'line': // 线状图
-            let clline = getChartOptionData(data, tablist, col, 'line')
+            let clline = getChartOptionData(data, tablist, col, 'line', count)
             console.log(clline)
             let opbline = {
                 tooltip: {trigger: 'item', // item axis none
                     axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}},
                     formatter: '{b0} <br />{a0}: {c0}'
                 },
-                legend: {orient: 'horizontal', bottom:'bottom', data: clline.legend},
-                grid: {top: '3%', left: '1.2%', right: '1%', bottom: '12%', containLabel: true},
+                legend: {orient: 'horizontal', bottom:'bottom', itemHeight: '10', data: clline.legend},
+                grid: {top: '3%', left: '1.2%', right: '1%', bottom: '15%', itemGap:0, containLabel: true},
                 xAxis: [{type: 'category', data: clline.xAxix}], yAxis: [{type: 'value'}], series: clline.series
             }
             option = opbline
             break;
         case 'piller': // 柱状图
-            let clData = getChartOptionData(data, tablist, col, 'bar')
+            let clData = getChartOptionData(data, tablist, col, 'bar', count)
+            console.log('ccccccccccccccccccccccccccccccccccccccccccccccccccccccc')
             console.log(clData)
             let opb = {
                 tooltip: {trigger: 'item', // item axis none
@@ -296,7 +326,7 @@ export const getTableOption = (data, tablist, col, type='line') => {
                     formatter: '{b0} <br />{a0}: {c0}'
                 },
                 legend: {orient: 'horizontal', bottom:'bottom', data: clData.legend},
-                grid: {top: '3%', left: '1.2%', right: '1%', bottom: '12%', containLabel: true},
+                grid: {top: '3%', left: '1.2%', right: '1%', bottom: '15%', containLabel: true},
                 xAxis: [{type: 'category', data: clData.xAxix}], yAxis: [{type: 'value'}], series: clData.series
             }
             option = opb
@@ -328,16 +358,6 @@ export const getTableOption = (data, tablist, col, type='line') => {
             break;
     }
 
-    let opb = {
-        tooltip: {trigger: 'item', // item axis none
-                axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}
-                },
-            formatter: '{b0} <br />{a0}: {c0}'
-        },
-        legend: {orient: 'horizontal', bottom:'bottom', data: data.legend},
-        grid: {top: '3%', left: '1.2%', right: '1%', bottom: '12%', containLabel: true},
-        xAxis: [{type: 'category', data: data.xAxix}], yAxis: [{type: 'value'}], series: data.series
-    }
     return option
 }
 
@@ -348,65 +368,7 @@ export const getTableOption = (data, tablist, col, type='line') => {
  * @returns Object
  */
 export const getOptionType = (data, type = 'line') => {
-    let option = null;
-    let dataObj = data;
 
-    if(!dataObj || dataObj.x.length < 1){
-        return option
-    }
-    switch (type) {
-        case 'line': // 线状图
-            let oline = {}
-            dataObj.x.map((item, i) => {
-                oline[item] = dataObj.y[i]
-            })
-            let xAxisDataline = Object.keys(oline)
-            let seriesDataline = Object.values(oline)
-            let opt = {
-                tooltip: {trigger: 'axis',
-                    axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}}
-                },
-                xAxis: [{type : 'category', boundaryGap : false, data: xAxisDataline}],
-                yAxis: [{type: 'value'}],
-                series: [{data: seriesDataline, type: 'line'}]
-            }
-            option = opt
-            break;
-        case 'piller': // 柱状图
-            let pobj = {}
-            dataObj.x.map((item, i) => {
-                pobj[item] = dataObj.y[i]
-            })
-            let xAxisData = Object.keys(pobj)
-            let seriesData = Object.values(pobj)
-            let op = {
-                tooltip: {trigger: 'axis',},
-                xAxis: {type: 'category', data: xAxisData},
-                yAxis: {type: 'value'},
-                series: [{data: seriesData, type: 'bar'}]
-            }
-            option = op
-            break;
-        case 'cake': // 饼状图
-            let obj = []
-            dataObj.x.map((item, i) => {
-                let oj = {name: '直接访问', value: 335}
-                oj.name = dataObj.x[i]
-                oj.value = dataObj.y[i]
-                obj.push(oj)
-            })
-            let legend = obj.map(_ => _.name)
-            let opcake = {
-                tooltip: {trigger: 'item', formatter: '{b} : {c}'},
-                legend: {orient: 'vertical', left: 'left', data: legend},
-                series: [{type: 'pie', radius: '55%', center: ['50%', '60%'], data: obj,
-                        itemStyle: {emphasis: {shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)'}}
-                    }
-                ]
-            }
-            option = opcake
-            break;
-    }
     return option
 }
 
@@ -417,9 +379,12 @@ export const getOptionType = (data, type = 'line') => {
  * @param cType
  * @returns {{series: Array, legend: Array, xAxix: *}}
  */
-export const  getChartOptionData = (rdata, tblist, col, cType) =>{
+export const  getChartOptionData = (rdata, tblist, col, cType, count='count') =>{
+    console.log('ddddddddddddddddddddddddddddddddddddddddd')
+    console.log(tblist)
     let tempClo = col.param.group_by.map(val => {return {title: val, key: val}})
     let data = rdata
+    if (!tblist) return
     let tableDa = tblist.map(taDa => {
         let stri = ''
         tempClo.forEach((clotVal, index) => {
@@ -438,18 +403,188 @@ export const  getChartOptionData = (rdata, tblist, col, cType) =>{
     cData.forEach((item, index)=> {
         item.forEach(serit => {
             let seritem = {name: serit.lable, type: cType, stack: '总量', data: []}
-            legends.push(serit.lable)
             seritem.data = cData.map(serVal => {
-                let vStr = tempClo[tempClo.length -1].title + '_count'
-                if (serVal.length > 0 ){return serVal[serVal.length - 1][vStr]}
+                // let vStr = tempClo[tempClo.length -1].title + '_count'
+                // if (serVal.length > 0 ){return serVal[serVal.length - 1][vStr]}
+                if (serVal.length > 0) {
+                    return serVal[serVal.length - 1][count]
+                }
                 return 0
             })
-            series.push(seritem)
+            if (index === 0) {
+                legends.push(serit.lable)
+                series.push(seritem)
+            }
+
         })
     })
     let cOption = {series: series, legend: legends, xAxix: xAxis}
-
     return cOption
+}
+
+export const getOptionData = (obj, data, tableData, type, countName) => {
+    let optionTemp = null
+    let dataObj = data;
+    let tempClo = obj.$d_Global.c_query.param.group_by.map(val => {return {title: val, key: val}})
+    if (!tableData || tableData.length <= 0) return
+    let isone = tableData[0]['index']
+    if (isone) {
+        let cd = {}
+        let legend = [tableData[0]['index']]
+        Object.keys(tableData[0]).forEach(_t => {
+            if (_t !== 'index') cd[_t] = tableData[0][_t]
+        })
+        let _ctype = ''
+        switch (type) {
+            case 'line':
+                optionTemp = _typeOp(legend, cd,'line')
+                break
+            case 'piller':
+                optionTemp = _typeOp(legend, cd, 'bar')
+                break
+            case 'cake':
+                let _ser = []
+                for (let _oit in cd){_ser.push({name: _oit, value: cd[_oit]})}
+                let _leg = _ser.map(_ => _.name)
+                let opcake = {
+                    tooltip: {trigger: 'item', formatter: '{b} : {c}'},
+                    legend: {orient: 'vertical', left: 'left', data: _leg},
+                    series: [{
+                        type: 'pie', radius: '55%', center: ['50%', '60%'], data: _ser,
+                        itemStyle: {emphasis: {shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)'}}}
+                    ]
+                }
+                optionTemp = opcake
+                break
+        }
+    }else {
+        // series: series, legend: legends, xAxix: xAxis
+        let cData = data.x.map((val, index) =>{
+            return tableData.filter(item => item.date === val)
+        })
+
+        let tableDa = tableData.map(taDa => {
+            let stri = ''
+            tempClo.forEach((clotVal, index) => {
+                if (index === 0) {
+                    stri = taDa[clotVal.title]
+                }else {
+                    stri += '-' + taDa[clotVal.title]
+                }
+            })
+            taDa['lable'] = stri
+            return taDa
+        })
+        let series = []
+        let legends = []
+        let xAxis = data.x
+        let cType = 'bar'
+        if (type === 'piller')cType = 'bar'
+        else if (type === 'line') cType = 'line'
+        else if(type === 'cake') cType = 'pie'
+        cData.forEach((item, index)=> {
+            item.forEach((serit, serindex) => {
+                let seritem = {
+                    name: serit.lable,
+                    type: cType,
+                    stack: '总量'
+                }
+                if (serindex == item.length - 1) {
+                    seritem['data'] = cData.map(serVal => {
+                        let vStr = 'count'
+                        if (countName === 'count'){
+                            vStr = tempClo[tempClo.length -1].title + '_count'
+                        }else {
+                            vStr = countName
+                        }
+                        if (serVal.length > 0) return serVal[serVal.length - 1][vStr]
+                        return 0
+                    })
+                    legends.push(serit.lable)
+                    series.push(seritem)
+                }
+            })
+        })
+        // console.log('ggggggggggggggggggggggggggggggggggggggggggggggg')
+        // console.log(cData)
+
+        let cOption = {series: series, legend: legends, xAxix: xAxis}
+        switch (type) {
+            case 'line': // 线状图
+                let clline = cOption
+                console.log(clline)
+                let opblinea = {
+                    tooltip: {trigger: 'axis', // item axis none
+                        axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}},
+                        formatter: '{b0} <br />{a0}: {c0}'
+                    },
+                    legend: {orient: 'horizontal', bottom:'bottom', itemHeight: '10', data: clline.legend},
+                    grid: {top: '3%', left: '1.2%', right: '1%', bottom: '15%', itemGap:0, containLabel: true},
+                    xAxis: [{type: 'category', data: clline.xAxix}], yAxis: [{type: 'value'}], series: clline.series
+                }
+                optionTemp = opblinea
+                break;
+            case 'piller': // 柱状图
+                let clData = cOption
+
+                let opba = {
+                    tooltip: {trigger: 'item', // item axis none
+                        axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}},
+                        formatter: '{b0} <br />{a0}: {c0}'
+                    },
+                    legend: {orient: 'horizontal', bottom:'bottom', data: clData.legend},
+                    grid: {top: '3%', left: '1.2%', right: '1%', bottom: '15%', containLabel: true},
+                    xAxis: [{type: 'category', data: clData.xAxix}], yAxis: [{type: 'value'}], series: clData.series
+                }
+                optionTemp = opba
+                break;
+            case 'cake': // 饼状图
+                let obj = []
+                let tabs = dataObj.x.map(dv => {
+                    return tableData.filter(itt => itt.date === dv)
+                })
+                tabs.forEach(tabitem => {
+                    let oob = {name: '', value: 335}
+                    let vStr = 'count'
+                    if (countName === 'count'){
+                        vStr = tempClo[tempClo.length -1].title + '_count'
+                    }else {
+                        vStr = countName
+                    }
+                    if (tabitem.length > 0 ){
+                        oob.name = tabitem[tabitem.length - 1]['lable']
+                        oob.value = tabitem[tabitem.length - 1][vStr]
+                        obj.push(oob)
+                    }
+                })
+                let legend = obj.map(_ => _.name)
+                let opcakeb = {tooltip: {trigger: 'item', formatter: '{b} : {c}'},
+                    legend: {orient: 'vertical', left: 'left', data: legend},
+                    series: [{
+                        type: 'pie', radius: '55%', center: ['50%', '60%'], data: obj,
+                        itemStyle: {emphasis: {shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)'}}}
+                    ]
+                }
+                optionTemp = opcakeb
+                break;
+        }
+    }
+
+    //获取通用的 option
+    function _typeOp(legend, cd, _tstr){
+        return {
+            tooltip: {trigger: 'item', // item axis none
+                axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}},
+                formatter: '{b0} <br />{a0}: {c0}'
+            },
+            legend: {orient: 'horizontal', bottom:'bottom', data: legend},
+            grid: {top: '3%', left: '1.2%', right: '1%', bottom: '15%', containLabel: true},
+            xAxis: [{type: 'category', data: Object.keys(cd)}], yAxis: [{type: 'value'}],
+            series: [{name: legend[0], type: _tstr, stack: '总量', data: Object.values(cd)},
+            ]
+        }
+    }
+    return optionTemp
 }
 
 /**
@@ -481,17 +616,16 @@ export const getQueryDataParse = (tardata, param) => {
 const getkey = (data, index = 0)=>{
     return Object.keys(data)[0]
 }
-const getTerm = (base, group, data, result) =>{
+const getTerm = (base, group, data, result) => {
     var ng = group.shift()
     if(group.length > 0){
         // 有下一层
         for(var i in data[ng + "_term"]){
             var nb = {...base}
-            var cd = data[ng + "_term"][i]
-            nb[ng] = getkey(cd)
-            // nb[ng + '_count'] = cd[nb[ng]].count
-            var nd = {...cd[nb[ng]]}
-            getTerm({...nb}, group, nd, result)
+            var cd = {...data[ng + "_term"][i]}
+            nb[ng] = getkey(cd) || ""
+            var nd = cd[nb[ng]]
+            getTerm({...nb}, group.concat(), nd, result)
         }
     } else {
         // 最后一层
@@ -507,7 +641,6 @@ const getTerm = (base, group, data, result) =>{
         }
     }
 }
-
 
 export const chartTableTest = {
     "day": {

@@ -92,7 +92,8 @@
                     let dataObj = {}
                     data.x.forEach((vl, i)=>{
                         this.tableCloumns.push({title: vl, key:vl, minWidth: 60, width: 110, align:'right'})
-                        dataObj[vl] = data.y[i]
+                        let caseName = this.$d_Global.c_top_cascaerCountNmae
+                        dataObj[vl] = data[vl][caseName]
                     })
                     this.tableCloumns.unshift({title: '指标', key: 'index',width: 150, align:'left'})
                     let t_tN = this.$d_Global.c_top_tableValue
@@ -103,6 +104,7 @@
                     this.tableList = datatype.getQueryDataParse(data, this.query.param)
                     if (this.tableList){
                         let ot = []
+                        console.log(this.tableList)
                         Object.keys(this.tableList[0]).forEach(v => {
                             if (v !== 'count') {
                                 if(v === 'date'){
@@ -114,10 +116,10 @@
                         })
                         this.tableCloumns = ot
                     }
-                    let td = {loading: false,
-                        data: Object.assign({},
-                            this.getChartOptionData(data,tempClo, this.$d_Global.c_chartType))}
-                    this.$emit('on-tab-updateCharts', td)
+                    // let td = {loading: false,
+                    //     data: Object.assign({},
+                    //         this.getChartOptionData(data,tempClo, this.$d_Global.c_chartType))}
+                    // this.$emit('on-tab-updateCharts', td)
                 }
                 return this.tableList
             },

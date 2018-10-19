@@ -43,6 +43,15 @@ export default {
 
     watch:{
         tableField(val, oval){
+            this.selectList = [
+                {
+                    value: 'all',
+                    label: '总体',
+                    selectValue: 'all',
+                    selectData: []
+                },
+            ]
+            this.comData()
             this.selectList[0].selectData = val
             this.selectList[0].selectValue = 'all'
             this.selectList[0].selectName = '总体'
