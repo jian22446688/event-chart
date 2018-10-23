@@ -37,20 +37,27 @@
                 <span class="sa-h-split"></span>
                 <div class="inline-block">
                     <Dropdown trigger="click" :visible="bookmarkPlane">
+
                         <a href="javascript:void(0)" class="title-color">书签列表
                             <Icon type="arrow-down-b"></Icon>
                         </a>
                         <DropdownMenu slot="list" >
-                            <DropdownItem v-for="item in getBookmarkList" @click.native="onDropdownItem(item)"  :key="item.id">{{item.conditions.title}}
+                            <DropdownItem
+                                v-for="item in getBookmarkList"
+                                @click.native="onDropdownItem(item)"
+                                :key="item.id">
+                                <Tooltip style="white-space: normal" :content="item.conditions.description || '暂无简介'"  max-width="200" placement="left">
+                                    <p class="book-title">{{item.conditions.title}}</p>
+                                </Tooltip>
                                 <span style="float: right">
                                     <!--<span style="color:#ccc; margin-left: 26px;margin-right: 6px; max-width: 200px">{{item.description}}</span>-->
                                     <template v-if="getBookmar_cur_item && getBookmar_cur_item === item.id">
-                                        <a href="javascript:void(0)" style="margin-left: 16px"
+                                        <a href="javascript:void(0)" style="margin-left: 6px"
                                            @click.stop="onNativeIconRefresh(item)">
                                            <font-awesome-icon icon="save" style="font-size: 15px" />
                                         </a>
                                     </template>
-                                    <a href="javascript:void(0)" style="margin-left: 8px"
+                                    <a href="javascript:void(0)" style="margin-left: 6px"
                                        @click.stop="onNativeIconDel(item)">
                                         <Icon size="18" type="trash-a" />
                                     </a>
@@ -141,15 +148,15 @@
                     {
                         id: 1001,
                         conditions: {
-                            title: '书签第一个书签第一个',
-                            description: '第一个书签简第一个书签简介介'
+                            title: '书签第一个书签第一个书签第一个书签第一个',
+                            description: '第一个书签简第第一个书签简第一个书签简介介第一个书签简第一个书签简介介一个书签简介介'
                         }
                     },
                     {
                         id: 1002,
                         conditions: {
                             title: '书签第二个',
-                            description: '第一个书签简介'
+                            description: ''
                         }
                     },
                     {
@@ -330,15 +337,20 @@
             .title-color {
                 color: #475669;
             }
-            .bookmark-title {
-                color: #475669;
-                outline: 0;
-                float: left;
-                max-width: 300px;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
         }
+    }
+
+    .book-title{
+        width: 160px;
+        margin-bottom: 0 !important;
+        word-break:keep-all;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .book-tip{
+        width: 120px;
+        overflow: hidden;
     }
 
     #d_download {
@@ -356,6 +368,7 @@
     .d-inline-block-slider {
         width: 100px;
     }
+
 
 
 </style>

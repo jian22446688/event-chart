@@ -3,9 +3,12 @@
         <div class="group-control-item" v-for="(item, i) in selectList" :key="i">
             <span>按</span>
             <span class="group-item-input">
-                <i-select style="min-width: 200px; width: auto;" v-model="item.selectValue" @on-change="onSelectChange(item)" filterable size="large">
+                <i-select
+                    style="min-width: 200px; width: auto;"
+                    v-model="item.selectValue"
+                    @on-change="onSelectChange(item)"
+                    size="large">
                     <i-option :value="item.value">{{ item.label }}</i-option>
-
                     <OptionGroup label="事件属性">
                         <i-option v-for="sl in item.selectData" :value="sl.id" :key="sl.id" :disabled="sl.c_state && item.selectValue != sl.id">{{ sl.alias ? sl.alias: sl.name }}</i-option>
                     </OptionGroup>

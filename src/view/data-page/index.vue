@@ -28,6 +28,7 @@
                     </div>
                 </div>
             </div>
+
             <!--charts components-->
             <charts-group ref="chartsGroup"
                           :typeValue="chartsType" @on-ChartsChange="onChartsChange"
@@ -201,7 +202,7 @@
             },
 
             onUpdateData(data = {}){
-                if(this.$d_Global.is_bookmark){
+                if(this.$d_Global.is_bookmark || this.$refs.topTable.cascaderValue < 1){
                     return
                 }
                 let and = this.$refs.filterGroup.selectList.length <= 1 ? '':this.$refs.filterGroup.andOrValue

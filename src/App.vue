@@ -2,18 +2,15 @@
     <div id="app">
         <!--<router-view/>-->
         <Home />
-        <!--<Test></Test>-->
     </div>
 </template>
 
 <script>
     import Home from './view/data-page/index'
-    import Test from './view/data-page/test'
 export default {
   name: 'App',
     components: {
         Home,
-        Test
     }
 }
 </script>
@@ -32,7 +29,6 @@ export default {
     #app {
         .size;
     }
-
     ul {
         margin-bottom: 0px !important;
     }
@@ -43,6 +39,16 @@ export default {
       .ivu-slider-button-wrap{
         top: -7px !important;
       }
+    }
+
+    /* 修改 iview 全局样式 */
+    .ivu-tooltip .ivu-tooltip-inner{
+        white-space: normal !important;
+    }
+
+    .ivu-select-group-title {
+        color: #000 !important;
+        font-size: 16px !important;
     }
 
 </style>

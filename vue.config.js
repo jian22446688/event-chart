@@ -37,6 +37,7 @@ module.exports = {
     // table/{id}/fields
     // event post
     devServer: {
+        open: false,
         proxy: {
             '/api': {
                 target: 'http://10.134.163.46/',

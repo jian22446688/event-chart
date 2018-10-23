@@ -14,7 +14,7 @@
                         <Select style="min-width: 200px; width: auto;"
                                 v-model="sitem.fieldValue"
                                 @on-change="onfieldChange(sitem, index)"
-                                filterable size="large">
+                                size="large">
                             <Option
                                 v-for="item in tableField"
                                     :value="item.name"
@@ -25,7 +25,7 @@
                         <Select style="min-width: 110px; width: auto;"
                                 v-model="sitem.condValue"
                                 @on-change="oncondChange(sitem)"
-                                filterable size="large">
+                                size="large">
                             <Option
                                 v-for="item in sitem.condData"
                                 :value="item.value"

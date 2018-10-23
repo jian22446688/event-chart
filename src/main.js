@@ -7,12 +7,8 @@ import App from './App'
 import iView from 'iview'
 import config from '@/config'
 import 'iview/dist/styles/iview.css'
-import env from '../config/env'
-// import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
-// import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-// if (env === 'development') require('@/mock')
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
@@ -58,9 +54,9 @@ Vue.prototype.$d_Global = {
     c_date: '',
     c_chartType: '',
     c_top_tableValue: '',
-    c_top_cascaerVaule: '',
-    c_top_cascaerVauleId: '',
-    c_top_cascaerCountNmae: '',
+    c_top_cascaerVaule: '',     // 字段属性 选择的值
+    c_top_cascaerVauleId: '',   // 字段属性 选择id
+    c_top_cascaerCountNmae: '', // 字段属性 选择的最后统计字段名字
     c_tableData: null,
 }
 

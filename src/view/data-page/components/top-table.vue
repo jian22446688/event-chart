@@ -3,18 +3,17 @@
         <span class="d-table-name">A</span>
         <Select style="width:200px"
                 v-model="dataBaseValue"
-                filterable size="large"
+                size="large"
                 placement="bottom"
                 @on-change="onSelectValueChanage">
             <template v-for="(ite, index) in tableData" :keys="index">
-                <template v-if="ite.name === null && ite.id === 0">
+                <template v-if="ite.name == null && ite.id === 0">
                     <Option v-for="item in ite.tables"
                             :value="item.name"
                             :key="item.name">{{item.alias ? item.alias:item.name}}
                     </Option>
                 </template>
-
-                <template v-if="ite.name">
+                <template v-else>
                     <OptionGroup :label="ite.name">
                         <Option v-for="item in ite.tables"
                                 :value="item.name"
@@ -23,7 +22,6 @@
                     </OptionGroup>
                 </template>
             </template>
-
         </Select>
 
         <span style="margin: 0px 10px;">的</span>
@@ -34,7 +32,7 @@
                   trigger="hover"
                   @on-change="onCascaerChange" />
 
-        <div class="d-hide-panel float-right">
+        <div class="d-hide-panel d-float-right">
             <Button type="text" style="padding: 0px 6px" @click="onAddFiltrate"><b style="font-size: 18px">+</b>筛选条件</Button>
         </div>
     </div>
@@ -59,9 +57,6 @@
             tableField(val, oval){
                 this.$d_Global.$vue.$emit('on-g-filterChange', val)
             },
-            dataBaseValue(val, oval){
-                // this.onDataBaseChange(val)
-            }
         },
         created(){
             this.$d_Global.c_top_cascaerVaule = this.cascaderValue
@@ -104,6 +99,7 @@
                 this.cascaderValue = ['a_1'];
                 localStorage.setItem('indexBase', value);
                 let tId = 0
+                this.$d_Global.c_top_cascaerVaule = this.cascaderValue
                 for (let item in this.tableData) {
                     let reus = this.tableData[item].tables.find(val => val.name === value)
                     if (reus){
@@ -113,7 +109,6 @@
                         break
                     }
                 }
-
                 this.$http.get('/table/' + tId + '/fields').then(res => {
                     let data = res.data
                     this.tableField = data
@@ -126,9 +121,11 @@
 
             initCascaderData(data){
                 let arr = [{value: 'a_1', label: '总次数'}]
-                if (this.$d_Global.c_top_cascaerVauleId === 0){
-                    arr = arr.concat(dataType.defaultType)
-                }
+
+                // if (this.$d_Global.c_top_cascaerVauleId === 0){
+                //
+                // }
+                arr = arr.concat(dataType.defaultType)
                 data.map((item, index) => {
                     let obj = {value: 'a_4', label: 'anylst_var', type: 'date',
                         children: [{value: 'v_1', label: 'var_name', children: []}]
@@ -145,8 +142,6 @@
                 this.cascaderValue = data
                 this.$d_Global.c_top_cascaerVaule = data
                 this.$d_Global.c_top_cascaerCountNmae = dataType.getTopCascaerName(data)
-                console.log('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr')
-                console.log(this.$d_Global.c_top_cascaerCountNmae)
                 this.$emit('on-CascaerChange')
                 console.log(this.cascaderValue)
             }

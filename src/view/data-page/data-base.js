@@ -287,13 +287,48 @@ export const getTopCascaerName = val => {
     if(val.length === 1){
         switch (val[0]) {
             case 'a_1': name = 'count'; break;
-            case 'a_2': name = 'distinct_avg'; break;
-            case 'a_3': name = 'distinct'; break;
+            case 'a_2': name = 'distinct'; break;
+            case 'a_3': name = 'distinct_avg'; break;
         }
     }
     return name
 }
 
+/**
+ * 获取 字段统计的别名
+ * @param n
+ * @returns {string}
+ */
+export const getCountAlias = n => {
+    let name = ''
+    console.log('tab', n)
+    if (n.length > 1){
+        switch (n[1]) {
+            case 'q_5': name = '去重数'; break;
+            case 'n_1': name = '最大值'; break;
+            case 'n_2': name = '最小值'; break;
+            case 'n_3': name = '总和'; break;
+            case 'n_4': name = '平均'; break;
+        }
+        return name
+    }
+    if (n.length === 1) {
+        switch (n[0]) {
+            case 'a_1': name = '总次数'; break;
+            case 'a_2': name = '触发用户数'; break;
+            case 'a_3': name = '人均数'; break;
+        }
+        return name
+    }
+}
+
+export const getCountReSult = (val) =>{
+    return val === 'distinct' || val === 'stat_max'
+        || val === 'stat_min' || val === 'stat_sum'
+        || val === 'stat_avg' || val === 'distinct_avg'
+        || val === 'count'
+
+}
 
 /**
  * 获取 Table Option
@@ -357,7 +392,6 @@ export const getTableOption = (data, tablist, col, type='line', count='count') =
             option = opcake
             break;
     }
-
     return option
 }
 
@@ -380,8 +414,6 @@ export const getOptionType = (data, type = 'line') => {
  * @returns {{series: Array, legend: Array, xAxix: *}}
  */
 export const  getChartOptionData = (rdata, tblist, col, cType, count='count') =>{
-    console.log('ddddddddddddddddddddddddddddddddddddddddd')
-    console.log(tblist)
     let tempClo = col.param.group_by.map(val => {return {title: val, key: val}})
     let data = rdata
     if (!tblist) return
@@ -415,7 +447,6 @@ export const  getChartOptionData = (rdata, tblist, col, cType, count='count') =>
                 legends.push(serit.lable)
                 series.push(seritem)
             }
-
         })
     })
     let cOption = {series: series, legend: legends, xAxix: xAxis}
@@ -482,37 +513,31 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
         if (type === 'piller')cType = 'bar'
         else if (type === 'line') cType = 'line'
         else if(type === 'cake') cType = 'pie'
-        cData.forEach((item, index)=> {
-            item.forEach((serit, serindex) => {
-                let seritem = {
-                    name: serit.lable,
-                    type: cType,
-                    stack: '总量'
+        cData[0].forEach(item => {
+            let ser = {
+                name: item.lable,
+                type: cType,
+                stack: '总量',
+                data: []
+            }
+            legends.push(item.lable)
+            series.push(ser)
+        })
+        cData.forEach((item, index) => {
+            item.forEach((t, i) =>{
+                let vStr = 'count'
+                if (countName === 'count'){
+                    vStr = tempClo[tempClo.length -1].title + '_count'
+                }else {
+                    vStr = countName
                 }
-                if (serindex == item.length - 1) {
-                    seritem['data'] = cData.map(serVal => {
-                        let vStr = 'count'
-                        if (countName === 'count'){
-                            vStr = tempClo[tempClo.length -1].title + '_count'
-                        }else {
-                            vStr = countName
-                        }
-                        if (serVal.length > 0) return serVal[serVal.length - 1][vStr]
-                        return 0
-                    })
-                    legends.push(serit.lable)
-                    series.push(seritem)
-                }
+                series[i].data.push(t[vStr] || 0)
             })
         })
-        // console.log('ggggggggggggggggggggggggggggggggggggggggggggggg')
-        // console.log(cData)
-
         let cOption = {series: series, legend: legends, xAxix: xAxis}
         switch (type) {
             case 'line': // 线状图
                 let clline = cOption
-                console.log(clline)
                 let opblinea = {
                     tooltip: {trigger: 'axis', // item axis none
                         axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}},
@@ -642,306 +667,10 @@ const getTerm = (base, group, data, result) => {
     }
 }
 
-export const chartTableTest = {
-    "day": {
-        "2018-07-01": {
-            "count": 144,
-            "area_term": [
-                {
-                    "华东": {
-                        "count": 144,
-                        "city_term": [
-                            {
-                                "上海市": {
-                                    "count": 144,
-                                    "isp_term": [
-                                        {
-                                            "电信": {
-                                                "count": 80,
-                                                "distinct": 46,
-                                                "distinct_avg": 1.7391304347826086,
-                                                "stat_count": 80,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 320
-                                            }
-                                        },
-                                        {
-                                            "移动": {
-                                                "count": 32,
-                                                "distinct": 19,
-                                                "distinct_avg": 1.6842105263157894,
-                                                "stat_count": 32,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 128
-                                            }
-                                        },
-                                        {
-                                            "鹏博士": {
-                                                "count": 21,
-                                                "distinct": 8,
-                                                "distinct_avg": 2.625,
-                                                "stat_count": 21,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 84
-                                            }
-                                        },
-                                        {
-                                            "有线通": {
-                                                "count": 5,
-                                                "distinct": 3,
-                                                "distinct_avg": 1.6666666666666667,
-                                                "stat_count": 5,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 20
-                                            }
-                                        },
-                                        {
-                                            "联通": {
-                                                "count": 5,
-                                                "distinct": 2,
-                                                "distinct_avg": 2.5,
-                                                "stat_count": 5,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 20
-                                            }
-                                        },
-                                        {
-                                            "阿里巴巴": {
-                                                "count": 1,
-                                                "distinct": 1,
-                                                "distinct_avg": 1,
-                                                "stat_count": 1,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 4
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
-        "x": [
-            "2018-07-01"
-        ],
-        "y": [
-            144
-        ]
-    },
-    "week": {
-        "2018-06-25": {
-            "count": 144,
-            "area_term": [
-                {
-                    "华东": {
-                        "count": 144,
-                        "city_term": [
-                            {
-                                "上海市": {
-                                    "count": 144,
-                                    "isp_term": [
-                                        {
-                                            "电信": {
-                                                "count": 80,
-                                                "distinct": 46,
-                                                "distinct_avg": 1.7391304347826086,
-                                                "stat_count": 80,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 320
-                                            }
-                                        },
-                                        {
-                                            "移动": {
-                                                "count": 32,
-                                                "distinct": 19,
-                                                "distinct_avg": 1.6842105263157894,
-                                                "stat_count": 32,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 128
-                                            }
-                                        },
-                                        {
-                                            "鹏博士": {
-                                                "count": 21,
-                                                "distinct": 8,
-                                                "distinct_avg": 2.625,
-                                                "stat_count": 21,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 84
-                                            }
-                                        },
-                                        {
-                                            "有线通": {
-                                                "count": 5,
-                                                "distinct": 3,
-                                                "distinct_avg": 1.6666666666666667,
-                                                "stat_count": 5,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 20
-                                            }
-                                        },
-                                        {
-                                            "联通": {
-                                                "count": 5,
-                                                "distinct": 2,
-                                                "distinct_avg": 2.5,
-                                                "stat_count": 5,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 20
-                                            }
-                                        },
-                                        {
-                                            "阿里巴巴": {
-                                                "count": 1,
-                                                "distinct": 1,
-                                                "distinct_avg": 1,
-                                                "stat_count": 1,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 4
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
-        "x": [
-            "2018-06-25"
-        ],
-        "y": [
-            144
-        ]
-    },
-    "month": {
-        "2018-07-01": {
-            "count": 144,
-            "area_term": [
-                {
-                    "华东": {
-                        "count": 144,
-                        "city_term": [
-                            {
-                                "上海市": {
-                                    "count": 144,
-                                    "isp_term": [
-                                        {
-                                            "电信": {
-                                                "count": 80,
-                                                "distinct": 46,
-                                                "distinct_avg": 1.7391304347826086,
-                                                "stat_count": 80,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 320
-                                            }
-                                        },
-                                        {
-                                            "移动": {
-                                                "count": 32,
-                                                "distinct": 19,
-                                                "distinct_avg": 1.6842105263157894,
-                                                "stat_count": 32,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 128
-                                            }
-                                        },
-                                        {
-                                            "鹏博士": {
-                                                "count": 21,
-                                                "distinct": 8,
-                                                "distinct_avg": 2.625,
-                                                "stat_count": 21,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 84
-                                            }
-                                        },
-                                        {
-                                            "有线通": {
-                                                "count": 5,
-                                                "distinct": 3,
-                                                "distinct_avg": 1.6666666666666667,
-                                                "stat_count": 5,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 20
-                                            }
-                                        },
-                                        {
-                                            "联通": {
-                                                "count": 5,
-                                                "distinct": 2,
-                                                "distinct_avg": 2.5,
-                                                "stat_count": 5,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 20
-                                            }
-                                        },
-                                        {
-                                            "阿里巴巴": {
-                                                "count": 1,
-                                                "distinct": 1,
-                                                "distinct_avg": 1,
-                                                "stat_count": 1,
-                                                "stat_min": 4,
-                                                "stat_max": 4,
-                                                "stat_avg": 4,
-                                                "stat_sum": 4
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
-        "x": [
-            "2018-07-01"
-        ],
-        "y": [
-            144
-        ]
-    }
-}
-
+/**
+ * 保存书签 实例
+ * @type {{title: string, description: string, data: {top_dataBaseValue: string, top_cascaderValue: string[], filter_selectList: *[], filter_andOrValue: string, condi_selectList: *[], charts_dateValue: string[], charts_chartsType: string, charts_modelDate: string}}}
+ */
 export const bookTest = {
     "title": "第一个标签",
     "description": "标签简介",
@@ -1023,541 +752,315 @@ export const bookTest = {
     }
 }
 
-export const bookMarkStr = {
-    "detail_result": {
-        "by_fields": ["event.$Anything.$country", "event.$Anything.$os"],
-        "series": ["2018-09-16 00:00:00", "2018-09-17 00:00:00", "2018-09-18 00:00:00", "2018-09-19 00:00:00", "2018-09-20 00:00:00", "2018-09-21 00:00:00", "2018-09-22 00:00:00", "2018-09-23 00:00:00", "2018-09-24 00:00:00", "2018-09-25 00:00:00", "2018-09-26 00:00:00", "2018-09-27 00:00:00", "2018-09-28 00:00:00", "2018-09-29 00:00:00", "2018-09-30 00:00:00", "2018-10-01 00:00:00", "2018-10-02 00:00:00", "2018-10-03 00:00:00", "2018-10-04 00:00:00", "2018-10-05 00:00:00", "2018-10-06 00:00:00", "2018-10-07 00:00:00", "2018-10-08 00:00:00", "2018-10-09 00:00:00", "2018-10-10 00:00:00", "2018-10-11 00:00:00", "2018-10-12 00:00:00", "2018-10-13 00:00:00", "2018-10-14 00:00:00", "2018-10-15 00:00:00"],
-        "rows": [{
-            "values": [
-                [6513920],
-                [6762408],
-                [6548512],
-                [6592288],
-                [6580592],
-                [6660216],
-                [6659120],
-                [6791208],
-                [6821256],
-                [6864448],
-                [6872520],
-                [6705280],
-                [6919488],
-                [6865856],
-                [7013104],
-                [7248536],
-                [6976400],
-                [6918032],
-                [7083008],
-                [6958880],
-                [6894600],
-                [6966152],
-                [6978552],
-                [6964160],
-                [7064904],
-                [7436072],
-                [7359320],
-                [7337600],
-                [7687672],
-                [5864360]
-            ],
-            "by_values": ["中国", "iOS"]
-        }, {
-            "values": [
-                [6070440],
-                [6349776],
-                [6225024],
-                [6227824],
-                [6378632],
-                [6416344],
-                [6460728],
-                [6440600],
-                [6493088],
-                [6550112],
-                [6447216],
-                [6401624],
-                [6332736],
-                [6565440],
-                [6754336],
-                [6685144],
-                [6738928],
-                [6592152],
-                [6852056],
-                [6551656],
-                [6807288],
-                [6756360],
-                [6666384],
-                [6682456],
-                [6935336],
-                [7166488],
-                [6803984],
-                [6779888],
-                [7082184],
-                [5464264]
-            ],
-            "by_values": ["中国", "Android"]
-        }, {
-            "values": [
-                [2207160],
-                [2283256],
-                [2143656],
-                [2058352],
-                [2228688],
-                [2195632],
-                [2104208],
-                [2257784],
-                [2285408],
-                [2383272],
-                [2348992],
-                [2298760],
-                [2326616],
-                [2356000],
-                [2285472],
-                [2248736],
-                [2392680],
-                [2341072],
-                [2334344],
-                [2195976],
-                [2234256],
-                [2417256],
-                [2209472],
-                [2341680],
-                [2369120],
-                [2452168],
-                [2523536],
-                [2405256],
-                [2474656],
-                [1856096]
-            ],
-            "by_values": ["美国", "iOS"]
-        }, {
-            "values": [
-                [2082688],
-                [1985696],
-                [2046872],
-                [2054792],
-                [2015568],
-                [2036392],
-                [2132360],
-                [2266048],
-                [2198816],
-                [2311368],
-                [2320000],
-                [2229800],
-                [2204432],
-                [2164360],
-                [2199144],
-                [2203400],
-                [2222576],
-                [2190024],
-                [2194256],
-                [2119328],
-                [2282936],
-                [2183840],
-                [2190440],
-                [2177632],
-                [2295352],
-                [2312104],
-                [2366552],
-                [2308816],
-                [2320952],
-                [1742536]
-            ],
-            "by_values": ["美国", "Android"]
-        }, {
-            "values": [
-                [1443576],
-                [1470208],
-                [1364616],
-                [1408496],
-                [1482232],
-                [1513792],
-                [1421640],
-                [1498816],
-                [1531256],
-                [1541456],
-                [1424048],
-                [1387488],
-                [1454048],
-                [1516568],
-                [1535496],
-                [1525688],
-                [1559672],
-                [1463984],
-                [1526728],
-                [1492792],
-                [1538208],
-                [1502032],
-                [1510888],
-                [1538288],
-                [1549728],
-                [1632824],
-                [1650768],
-                [1625616],
-                [1673016],
-                [1290840]
-            ],
-            "by_values": ["中国", "Windows"]
-        }, {
-            "values": [
-                [1089344],
-                [1009272],
-                [1085584],
-                [1115640],
-                [1139000],
-                [1171744],
-                [1070832],
-                [1152456],
-                [1152720],
-                [1161568],
-                [1107544],
-                [1154096],
-                [1113912],
-                [1071752],
-                [1134152],
-                [1134224],
-                [1098600],
-                [1173464],
-                [1194440],
-                [1206120],
-                [1259464],
-                [1216168],
-                [1170288],
-                [1189944],
-                [1243960],
-                [1262024],
-                [1171456],
-                [1135312],
-                [1278048],
-                [999136]
-            ],
-            "by_values": ["韩国", "iOS"]
-        }, {
-            "values": [
-                [1257304],
-                [1115064],
-                [1070296],
-                [1112336],
-                [1088184],
-                [1177344],
-                [1189176],
-                [1116080],
-                [1074600],
-                [1228352],
-                [1136872],
-                [1182088],
-                [1159144],
-                [1197736],
-                [1215696],
-                [1219136],
-                [1319440],
-                [1159024],
-                [1215408],
-                [1162024],
-                [1242280],
-                [1180968],
-                [1207944],
-                [1229400],
-                [1242064],
-                [1234960],
-                [1180840],
-                [1281816],
-                [1341840],
-                [968976]
-            ],
-            "by_values": ["日本", "iOS"]
-        }, {
-            "values": [
-                [984232],
-                [1060424],
-                [1016512],
-                [1057880],
-                [1228152],
-                [1155800],
-                [1043424],
-                [1084432],
-                [1126808],
-                [1104440],
-                [1068520],
-                [1120232],
-                [1124232],
-                [1042816],
-                [1145096],
-                [1124704],
-                [1100976],
-                [1080016],
-                [1157936],
-                [1143064],
-                [1158272],
-                [1147232],
-                [1080688],
-                [1137368],
-                [1156984],
-                [1188736],
-                [1077296],
-                [1129352],
-                [1253568],
-                [945048]
-            ],
-            "by_values": ["韩国", "Android"]
-        }, {
-            "values": [
-                [1048816],
-                [1079024],
-                [1001136],
-                [1045480],
-                [1102592],
-                [1103048],
-                [1062552],
-                [1083232],
-                [1050128],
-                [1108920],
-                [1109600],
-                [1156968],
-                [1109360],
-                [1114040],
-                [1155328],
-                [1121440],
-                [1207656],
-                [1131800],
-                [1118760],
-                [1141120],
-                [1186688],
-                [1090400],
-                [1102176],
-                [1184784],
-                [1171296],
-                [1223976],
-                [1081704],
-                [1196600],
-                [1278680],
-                [888064]
-            ],
-            "by_values": ["日本", "Android"]
-        }, {
-            "values": [
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [0],
-                [97536],
-                [473856],
-                [471552]
-            ],
-            "by_values": ["局域网", "GNU/Linux"]
-        }, {
-            "values": [
-                [426736],
-                [445264],
-                [461352],
-                [449120],
-                [460824],
-                [480256],
-                [497712],
-                [488520],
-                [513144],
-                [520184],
-                [514696],
-                [492600],
-                [483192],
-                [484632],
-                [517280],
-                [514512],
-                [548256],
-                [552168],
-                [525280],
-                [462160],
-                [472952],
-                [559832],
-                [524064],
-                [531240],
-                [524104],
-                [543616],
-                [545552],
-                [499216],
-                [567368],
-                [418032]
-            ],
-            "by_values": ["美国", "Windows"]
-        }, {
-            "values": [
-                [283952],
-                [233912],
-                [220800],
-                [244920],
-                [247552],
-                [252576],
-                [233520],
-                [274544],
-                [243640],
-                [241960],
-                [246224],
-                [280736],
-                [243856],
-                [273056],
-                [238992],
-                [256720],
-                [244688],
-                [230376],
-                [277288],
-                [243936],
-                [251312],
-                [231392],
-                [273560],
-                [285504],
-                [265416],
-                [281768],
-                [279120],
-                [257920],
-                [248544],
-                [244664]
-            ],
-            "by_values": ["日本", "Windows"]
-        }, {
-            "values": [
-                [248776],
-                [230552],
-                [231504],
-                [219416],
-                [275504],
-                [264312],
-                [250368],
-                [256304],
-                [256096],
-                [223232],
-                [233904],
-                [256120],
-                [281288],
-                [227184],
-                [242808],
-                [257480],
-                [256928],
-                [238216],
-                [259304],
-                [262448],
-                [277024],
-                [305600],
-                [269688],
-                [304152],
-                [302480],
-                [299304],
-                [278832],
-                [251880],
-                [292264],
-                [220888]
-            ],
-            "by_values": ["韩国", "Windows"]
-        }],
-        "num_rows": 13,
-        "total_rows": 13,
-        "approx": false,
-        "truncated": false
-    },
-    "rollup_result": {
-        "by_fields": ["event.$Anything.$country", "event.$Anything.$os"],
-        "series": ["2018-09-16 00:00:00"],
-        "rows": [{
-            "values": [
-                [206908464]
-            ],
-            "by_values": ["中国", "iOS"]
-        }, {
-            "values": [
-                [196678488]
-            ],
-            "by_values": ["中国", "Android"]
-        }, {
-            "values": [
-                [68559560]
-            ],
-            "by_values": ["美国", "iOS"]
-        }, {
-            "values": [
-                [65359080]
-            ],
-            "by_values": ["美国", "Android"]
-        }, {
-            "values": [
-                [45074808]
-            ],
-            "by_values": ["中国", "Windows"]
-        }, {
-            "values": [
-                [35506392]
-            ],
-            "by_values": ["日本", "iOS"]
-        }, {
-            "values": [
-                [34462264]
-            ],
-            "by_values": ["韩国", "iOS"]
-        }, {
-            "values": [
-                [33455368]
-            ],
-            "by_values": ["日本", "Android"]
-        }, {
-            "values": [
-                [33244240]
-            ],
-            "by_values": ["韩国", "Android"]
-        }, {
-            "values": [
-                [15023864]
-            ],
-            "by_values": ["美国", "Windows"]
-        }, {
-            "values": [
-                [7773856]
-            ],
-            "by_values": ["韩国", "Windows"]
-        }, {
-            "values": [
-                [7632448]
-            ],
-            "by_values": ["日本", "Windows"]
-        }, {
-            "values": [
-                [1042944]
-            ],
-            "by_values": ["局域网", "GNU/Linux"]
-        }],
-        "num_rows": 13,
-        "total_rows": 13,
-        "approx": false,
-        "truncated": false
-    },
-    "report_update_time": "2018-10-17 08:02:13.025",
-    "data_update_time": "2018-10-16 00:00:44.000",
-    "data_sufficient_update_time": "2018-10-16 02:00:00.000",
-    "truncated": false,
-    "sampling_factor": 64
-}
+export const testTableData = [
+    [{
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "bbb23534fcb0f5a7",
+        "android_id_count": 210,
+        "lable": "bbb23534fcb0f5a7"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "317ab1efc2d5095d",
+        "android_id_count": 176,
+        "lable": "317ab1efc2d5095d"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "d9a22acf99575932",
+        "android_id_count": 162,
+        "lable": "d9a22acf99575932"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "182d18a2f2602467",
+        "android_id_count": 160,
+        "lable": "182d18a2f2602467"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "6148020828c0cdee",
+        "android_id_count": 139,
+        "lable": "6148020828c0cdee"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "4ff179165f41cccf",
+        "android_id_count": 126,
+        "lable": "4ff179165f41cccf"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "5e846b1d55cff18e",
+        "android_id_count": 110,
+        "lable": "5e846b1d55cff18e"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "578631cd7e3e9ccb",
+        "android_id_count": 102,
+        "lable": "578631cd7e3e9ccb"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "10099583a816acef",
+        "android_id_count": 85,
+        "lable": "10099583a816acef"
+    }, {
+        "date": "2018-07-01",
+        "count": 19979,
+        "android_id": "40a3c18604853acd",
+        "android_id_count": 85,
+        "lable": "40a3c18604853acd"
+    }],
+    [{
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "182d18a2f2602467",
+        "android_id_count": 208,
+        "lable": "182d18a2f2602467"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "317ab1efc2d5095d",
+        "android_id_count": 204,
+        "lable": "317ab1efc2d5095d"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "24fcd286378f790b",
+        "android_id_count": 177,
+        "lable": "24fcd286378f790b"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "bbb23534fcb0f5a7",
+        "android_id_count": 176,
+        "lable": "bbb23534fcb0f5a7"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "d9a22acf99575932",
+        "android_id_count": 128,
+        "lable": "d9a22acf99575932"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "254e6598096fac8e",
+        "android_id_count": 120,
+        "lable": "254e6598096fac8e"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "578631cd7e3e9ccb",
+        "android_id_count": 114,
+        "lable": "578631cd7e3e9ccb"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "5e846b1d55cff18e",
+        "android_id_count": 111,
+        "lable": "5e846b1d55cff18e"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "1bfe692a7fb45210",
+        "android_id_count": 107,
+        "lable": "1bfe692a7fb45210"
+    }, {
+        "date": "2018-07-02",
+        "count": 19994,
+        "android_id": "e75520ca005701af",
+        "android_id_count": 107,
+        "lable": "e75520ca005701af"
+    }],
+    [{
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "317ab1efc2d5095d",
+        "android_id_count": 166,
+        "lable": "317ab1efc2d5095d"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "d9a22acf99575932",
+        "android_id_count": 160,
+        "lable": "d9a22acf99575932"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "5e846b1d55cff18e",
+        "android_id_count": 150,
+        "lable": "5e846b1d55cff18e"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "182d18a2f2602467",
+        "android_id_count": 149,
+        "lable": "182d18a2f2602467"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "bbb23534fcb0f5a7",
+        "android_id_count": 143,
+        "lable": "bbb23534fcb0f5a7"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "75f0cf697a7ed88b",
+        "android_id_count": 142,
+        "lable": "75f0cf697a7ed88b"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "4ff179165f41cccf",
+        "android_id_count": 125,
+        "lable": "4ff179165f41cccf"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "578631cd7e3e9ccb",
+        "android_id_count": 101,
+        "lable": "578631cd7e3e9ccb"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "10099583a816acef",
+        "android_id_count": 100,
+        "lable": "10099583a816acef"
+    }, {
+        "date": "2018-07-03",
+        "count": 19997,
+        "android_id": "a1817e914551e5b2",
+        "android_id_count": 99,
+        "lable": "a1817e914551e5b2"
+    }],
+    [{
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "182d18a2f2602467",
+        "android_id_count": 180,
+        "lable": "182d18a2f2602467"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "d9a22acf99575932",
+        "android_id_count": 176,
+        "lable": "d9a22acf99575932"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "bbb23534fcb0f5a7",
+        "android_id_count": 164,
+        "lable": "bbb23534fcb0f5a7"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "317ab1efc2d5095d",
+        "android_id_count": 162,
+        "lable": "317ab1efc2d5095d"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "5e846b1d55cff18e",
+        "android_id_count": 129,
+        "lable": "5e846b1d55cff18e"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "4ff179165f41cccf",
+        "android_id_count": 117,
+        "lable": "4ff179165f41cccf"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "1c910ab51fe526e8",
+        "android_id_count": 114,
+        "lable": "1c910ab51fe526e8"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "40a3c18604853acd",
+        "android_id_count": 105,
+        "lable": "40a3c18604853acd"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "b25d95f503eb18b",
+        "android_id_count": 93,
+        "lable": "b25d95f503eb18b"
+    }, {
+        "date": "2018-07-04",
+        "count": 19998,
+        "android_id": "10099583a816acef",
+        "android_id_count": 90,
+        "lable": "10099583a816acef"
+    }],
+    [{
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "317ab1efc2d5095d",
+        "android_id_count": 288,
+        "lable": "317ab1efc2d5095d"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "182d18a2f2602467",
+        "android_id_count": 225,
+        "lable": "182d18a2f2602467"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "bbb23534fcb0f5a7",
+        "android_id_count": 183,
+        "lable": "bbb23534fcb0f5a7"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "d9a22acf99575932",
+        "android_id_count": 156,
+        "lable": "d9a22acf99575932"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "4ff179165f41cccf",
+        "android_id_count": 146,
+        "lable": "4ff179165f41cccf"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "5e846b1d55cff18e",
+        "android_id_count": 109,
+        "lable": "5e846b1d55cff18e"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "1c910ab51fe526e8",
+        "android_id_count": 104,
+        "lable": "1c910ab51fe526e8"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "578631cd7e3e9ccb",
+        "android_id_count": 103,
+        "lable": "578631cd7e3e9ccb"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "40a3c18604853acd",
+        "android_id_count": 92,
+        "lable": "40a3c18604853acd"
+    }, {
+        "date": "2018-07-05",
+        "count": 19987,
+        "android_id": "a1817e914551e5b2",
+        "android_id_count": 91,
+        "lable": "a1817e914551e5b2"
+    }]
+]
 
-
-
+// 接口
 // 添加书签:
 //     Method: POST form
 // URL: http://10.134.163.46/admin/condition_bookmark

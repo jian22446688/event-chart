@@ -104,22 +104,30 @@
                     this.tableList = datatype.getQueryDataParse(data, this.query.param)
                     if (this.tableList){
                         let ot = []
-                        console.log(this.tableList)
+                        let nn = datatype.getTopCascaerName(this.$d_Global.c_top_cascaerVaule)
+                        let cn = datatype.getCountAlias(this.$d_Global.c_top_cascaerVaule)
                         Object.keys(this.tableList[0]).forEach(v => {
                             if (v !== 'count') {
                                 if(v === 'date'){
                                     ot.push({title: v, key: v, minWidth: 60, maxWidth: 100, align:'right'})
-                                }else {
-                                    ot.push({title: v, key: v, minWidth: 60, align:'right'})
+                                } else {
+                                    if (nn === 'count'){
+                                        if (v.lastIndexOf('_count') !== -1)
+                                            ot.push({title: cn, key: v, minWidth: 60, align:'right'})
+                                        else
+                                            ot.push({title: v, key: v, minWidth: 60, align:'right'})
+                                    }else {
+                                        if (nn === v)
+                                            ot.push({title: cn, key: v, minWidth: 60, align:'right'})
+                                        if (!datatype.getCountReSult(v))
+                                            ot.push({title: v, key: v, minWidth: 60, align:'right'})
+                                    }
                                 }
                             }
                         })
+                        ot = ot.filter(item => item.title != 'stat_count')
                         this.tableCloumns = ot
                     }
-                    // let td = {loading: false,
-                    //     data: Object.assign({},
-                    //         this.getChartOptionData(data,tempClo, this.$d_Global.c_chartType))}
-                    // this.$emit('on-tab-updateCharts', td)
                 }
                 return this.tableList
             },
@@ -207,5 +215,4 @@
 </script>
 
 <style scoped lang="less">
-
 </style>
