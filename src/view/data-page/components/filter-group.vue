@@ -46,7 +46,8 @@
                        </template>
                        <template v-else-if="sitem.is_section" >
                            <Input style="min-width: 110px; width: auto;"
-                                  v-model="sitem.section_1" size="large"/>
+                                  v-model="sitem.section_1" size="large"
+                                  @keyup.enter.native="onBlurChange"/>
                            <Input style="min-width: 110px; width: auto;"
                                   v-model="sitem.section_2" size="large"
                                   @keyup.enter.native="onBlurChange"/>
@@ -225,7 +226,6 @@
             },
 
             onQueryChange(query){
-
                 console.log(query)
             }
         }
