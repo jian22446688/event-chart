@@ -39,9 +39,9 @@
                                     size="large"
                                     @on-change="onBlurChange" @on-query-change="onQueryChange">
                                 <Option
-                                    v-for="item in sitem.enumList"
+                                    v-for="(item, index) in sitem.enumList"
                                     :value="item.value"
-                                    :key="item.value">{{ item.value }}</Option>
+                                    :key="index">{{ item.value }}</Option>
                             </Select>
                        </template>
                        <template v-else-if="sitem.is_section" >
@@ -100,22 +100,13 @@
                     this.selectList = []
                 }
             },
-            andOrValue(val, oval){
-                this.onBlurChange()
-            },
             selectList(val, oval){
                 if (this.$d_Global.is_bookmark){
 
                 } else {
                     this.onBlurChange()
                 }
-
             },
-            bookmarkList(val, oval){
-
-                console.log('g: ' + val.length)
-                this.bookmarkInit(val)
-            }
         },
 
         created(){
@@ -149,8 +140,9 @@
             },
             onAndChange(){
                 // true '且' -and false '或' -or
-                this.andOr = !this.andOr;
-                this.andOrValue = this.andOr ? 'and': 'or';
+                this.andOr = !this.andOr
+                this.andOrValue = this.andOr ? 'and': 'or'
+                this.onBlurChange()
             },
             onAddItem(){
                 const obj = {
@@ -198,6 +190,7 @@
                         val.condData = null
                         let obj = dataType.getFiledTypeArray(item.type)
                         val.condData = obj
+                        console.log(item.type, obj)
                         val.condValue = obj[0].value
                         if (item.is_enum) {
                             val.is_enum = true

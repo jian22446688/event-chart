@@ -160,18 +160,21 @@
                 }
             },
 
-            setCurrentBookMark(bookitem){
+            async setCurrentBookMark(bookitem){
+                console.log(bookitem)
                 if (!bookitem || !bookitem.data) return
-                let obj = bookitem
+                let obj = bookitem.data
                 this.$d_Global.is_bookmark = true
-                this.$refs.topTable.dataBaseValue = obj.data.top_dataBaseValue
-                this.$refs.topTable.cascaderValue = obj.data.top_cascaderValue
-                this.$refs.filterGroup.bookmarkList  = obj.data.filter_selectList
-                this.$refs.filterGroup.andOrValue  = obj.data.filter_andOrValue
-                this.$refs.condition.bookmarkList  = obj.data.condi_selectList
-                this.$refs.chartsGroup.dateValue  = obj.data.charts_dateValue
-                this.$refs.chartsGroup.chartsType  = obj.data.charts_chartsType
-                this.$refs.chartsGroup.modelDate  = obj.data.charts_modelDate
+                let res = await this.$refs.topTable.getTopFields(obj.top_dataBaseValue)
+                this.$d_Global.c_tableField = res.data
+                this.$refs.topTable.dataBaseValue    = obj.top_dataBaseValue
+                this.$refs.topTable.initCascaer(obj.top_cascaderValue)
+                this.$refs.filterGroup.bookmarkInit(obj.filter_selectList)
+                this.$refs.filterGroup.andOrValue    = obj.filter_andOrValue
+                this.$refs.condition.bookMarkInit(obj.condi_selectList)
+                this.$refs.chartsGroup.dateValue     = obj.charts_dateValue
+                this.$refs.chartsGroup.chartsType    = obj.charts_chartsType
+                this.$refs.chartsGroup.modelDate     = obj.charts_modelDate
                 this.$d_Global.is_bookmark = false
             },
 
@@ -200,11 +203,17 @@
                 this.$refs.chartsGroup.modelDate  = obj.data.charts_modelDate
                 this.$d_Global.is_bookmark = false
             },
+            onUpdateData(){
+                this.$nextTick(() => {
+                    this.onUpdateData_nextTick()
+                })
+            },
 
-            onUpdateData(data = {}){
+            onUpdateData_nextTick(data = {}){
                 if(this.$d_Global.is_bookmark || this.$refs.topTable.cascaderValue < 1){
                     return
                 }
+
                 let and = this.$refs.filterGroup.selectList.length <= 1 ? '':this.$refs.filterGroup.andOrValue
                 let param = {
                     param:{
@@ -213,7 +222,7 @@
                             "gte": this.$refs.chartsGroup.dateValue[0],
                             "lte":this.$refs.chartsGroup.dateValue[1]
                         },
-                        group_by: this.$refs.condition.condData,
+                        group_by: this.$d_Global.c_condData,
                         condition:{
                             type: and,
                             must:[],
@@ -300,7 +309,6 @@
                     this.$refs.chartsGroup.setOption(null, null, true)
                     return
                 }
-                // this.tableData = this.$refs.tebles.getTableDataBegin(par, false)
                 this.$refs.chartsGroup.setOption(par, this.tableData, false, this);
             },
         }

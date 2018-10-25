@@ -11,6 +11,7 @@ export const FILTER_GROUP_K_D_1         = 'l_d_1'
 export const FILTER_GROUP_K_D_2         = 'l_d_2'
 export const FILTER_GROUP_L_D_5         = 'l_d_5' // 区间
 
+export const TOP_TABLE_DIST_A_1         = 'a_1' // 总数
 export const TOP_TABLE_DIST_A_2         = 'a_2' // 触发用户数
 export const TOP_TABLE_DIST_A_3         = 'a_3' // 人均数
 export const TOP_TABLE_DIST_Q_5         = 'q_5' // 去重
@@ -22,13 +23,12 @@ export const TOP_TABLE_STATS_N_4        = 'n_4' // 平均 stats
 // 筛选条件中 是不等于
 export const FILTER_GROUP_K_2           = 'k_2'
 
-
 export const defaultType = [
     {value: 'a_2', label: '触发用户数'},
     {value: 'a_3', label: '人均次数'}
 ]
 
-export const longDateType = [
+export const equalDateType = [
     {
         value: 'l_d_1',
         label: '等于'
@@ -37,6 +37,9 @@ export const longDateType = [
         value: 'l_d_2',
         label: '不等于'
     },
+]
+
+export const longDateType = [
     {
         value: 'l_d_3',
         label: '大于'
@@ -52,14 +55,6 @@ export const longDateType = [
 ]
 
 export const keywordType = [
-    {
-        value: 'k_1',
-        label: '等于'
-    },
-    {
-        value: 'k_2',
-        label: '不等于'
-    },
     // {
     //     value: 'k_3',
     //     label: '为空'
@@ -190,6 +185,7 @@ export const getTypeArray = (key)=> {
 
 export const getFiledTypeArray = (key)=> {
     let arr = [];
+    arr = arr.concat(equalDateType)
     switch (key) {
         case 'long':
             arr = arr.concat(longDateType)
@@ -508,7 +504,8 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
         })
         let series = []
         let legends = []
-        let xAxis = data.x
+        // let xAxis = data.x
+        let xAxis = []
         let cType = 'bar'
         if (type === 'piller')cType = 'bar'
         else if (type === 'line') cType = 'line'
@@ -531,8 +528,13 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
                 }else {
                     vStr = countName
                 }
-                series[i].data.push(t[vStr] || 0)
+                if (series[i]) {
+                    series[i].data.push(t[vStr] || 0)
+                }
             })
+            if (item[0]){
+                xAxis.push(item[0].date)
+            }
         })
         let cOption = {series: series, legend: legends, xAxix: xAxis}
         switch (type) {

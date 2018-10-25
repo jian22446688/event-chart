@@ -55,12 +55,12 @@
         watch: {
             // 数据更换事件
             tableField(val, oval){
+                this.$d_Global.c_tableField = val
                 this.$d_Global.$vue.$emit('on-g-filterChange', val)
             },
         },
         created(){
-            this.$d_Global.c_top_cascaerVaule = this.cascaderValue
-            this.$d_Global.c_top_cascaerCountNmae = dataType.getTopCascaerName(this.cascaderValue)
+            this.initCascaer(this.cascaderValue)
         },
         mounted(){
             this.init();
@@ -70,9 +70,8 @@
                 this.$http.get('/tables').then(res => {
                     if (res.status == 200){
                         let data = res.data;
-                        // let trundata = data.pop();
-                        // data.unshift(trundata)
                         this.tableData = data;
+                        this.$d_Global.c_tableData = this.tableData
                         this.dataBaseValue = localStorage.getItem('indexBase');
                         if(this.dataBaseValue != null){
                             this.onDataBaseChange(this.dataBaseValue)
@@ -87,6 +86,12 @@
                 })
             },
 
+            initCascaer(cascVal){
+                this.cascaderValue = cascVal
+                this.$d_Global.c_top_cascaerVaule = cascVal
+                this.$d_Global.c_top_cascaerCountNmae = dataType.getTopCascaerName(cascVal)
+            },
+
             onAddFiltrate(){
                 this.$emit('on-addFiltrate')
             },
@@ -96,10 +101,12 @@
             },
 
             onDataBaseChange(value){
+                console.log('dddd' ,value)
                 this.cascaderValue = ['a_1'];
                 localStorage.setItem('indexBase', value);
                 let tId = 0
                 this.$d_Global.c_top_cascaerVaule = this.cascaderValue
+                this.$d_Global.c_top_cascaerCountNmae = 'count'
                 for (let item in this.tableData) {
                     let reus = this.tableData[item].tables.find(val => val.name === value)
                     if (reus){
@@ -119,12 +126,22 @@
                 })
             },
 
+            getTopFields(value){
+                let tId = 0
+                for (let item in this.tableData) {
+                    let reus = this.tableData[item].tables.find(val => val.name === value)
+                    if (reus){
+                        tId = reus.id
+                        this.$d_Global.c_top_tableValue = reus.alias || reus.name
+                        this.$d_Global.c_top_cascaerVauleId = tId
+                        break
+                    }
+                }
+                return this.$http.get('/table/' + tId + '/fields')
+            },
+
             initCascaderData(data){
                 let arr = [{value: 'a_1', label: '总次数'}]
-
-                // if (this.$d_Global.c_top_cascaerVauleId === 0){
-                //
-                // }
                 arr = arr.concat(dataType.defaultType)
                 data.map((item, index) => {
                     let obj = {value: 'a_4', label: 'anylst_var', type: 'date',

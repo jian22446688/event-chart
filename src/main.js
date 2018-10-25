@@ -58,6 +58,8 @@ Vue.prototype.$d_Global = {
     c_top_cascaerVauleId: '',   // 字段属性 选择id
     c_top_cascaerCountNmae: '', // 字段属性 选择的最后统计字段名字
     c_tableData: null,
+    c_tableField: null,
+    c_condData:[]
 }
 
 Vue.use(iView)

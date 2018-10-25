@@ -32,7 +32,6 @@
                 exportLoading: false,
                 tableList: [],
                 tableCloumns: []
-
             }
         },
         computed:{
@@ -126,8 +125,12 @@
                             }
                         })
                         ot = ot.filter(item => item.title != 'stat_count')
+                        if (this.$d_Global.c_top_cascaerVaule[0] !== datatype.TOP_TABLE_DIST_A_1) {
+                           ot = ot.filter(item => item.title.lastIndexOf('_count') === -1)
+                        }
                         this.tableCloumns = ot
                     }
+
                 }
                 return this.tableList
             },

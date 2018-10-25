@@ -59,18 +59,15 @@ export default {
             this.selectList[0].selectValue = 'all'
             this.selectList[0].selectName = '总体'
             this.selectList[0].selectData[0]['c_state'] = false
-        },
-
-        bookmarkList(val, oval){
-            this.bookMarkInit(val)
         }
     },
 
     methods: {
         bookMarkInit(val){
+            let tableField = this.$d_Global.c_tableField
             let bookarr = []
-            for(let oj in this.tableField){
-                delete this.tableField[oj].c_state
+            for(let oj in tableField){
+                delete tableField[oj].c_state
             }
             val.map(item => {
                 let obj = {
@@ -78,11 +75,11 @@ export default {
                     label: '总体',
                     selectValue: item.selectValue,
                     selectName: item.selectName,
-                    selectData: this.tableField
+                    selectData: tableField
                 }
-                for(let oj in this.tableField){
-                    if(!this.tableField[oj].c_state){
-                        obj.selectData = this.tableField
+                for(let oj in tableField){
+                    if(!tableField[oj].c_state){
+                        obj.selectData = tableField
                         obj.selectData[oj]['c_state'] = true
                         break;
                     }
@@ -90,11 +87,11 @@ export default {
                 bookarr.push(obj)
                 this.selectList = bookarr
             })
-            this.tableField.map((oj, ij)=>{
+            tableField.map((oj, ij)=>{
                 delete oj.c_state
             })
             this.selectList.map((item, index)=>{
-                this.tableField.map((oj, ij)=>{
+                tableField.map((oj, ij)=>{
                     if(item.selectValue === oj.id) {
                         item.selectName = oj.name
                         oj['c_state'] = true
@@ -136,8 +133,6 @@ export default {
             });
             this.$nextTick(()=>{
                 this.selectList = this.selectList.map(item => item)
-                console.log('condition -- list')
-                console.log(this.selectList)
                 this.onSendData()
             })
         },
@@ -149,6 +144,7 @@ export default {
                     this.condData.push(item.selectName)
                 }
             })
+            this.$d_Global.c_condData = [...this.condData]
         },
 
         onSendData(){
@@ -158,7 +154,7 @@ export default {
 
         // 选择事件更换
         onSelectChange(data){
-            this.tableField.map((oj, ij)=>{
+            this.tableField.map((oj, ij)=> {
                 delete oj.c_state
             })
             this.selectList.map((item, index)=>{
