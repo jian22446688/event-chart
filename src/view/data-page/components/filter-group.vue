@@ -45,11 +45,11 @@
                             </Select>
                        </template>
                        <template v-else-if="sitem.is_section" >
-                            <InputNumber v-model="sitem.section_1" size="large"></InputNumber>
-                            <InputNumber
-                                v-model="sitem.section_2"
-                                size="large"
-                                @keyup.enter.native="onBlurChange"></InputNumber>
+                           <Input style="min-width: 110px; width: auto;"
+                                  v-model="sitem.section_1" size="large"/>
+                           <Input style="min-width: 110px; width: auto;"
+                                  v-model="sitem.section_2" size="large"
+                                  @keyup.enter.native="onBlurChange"/>
                        </template>
                         <template v-else>
                             <Input style="min-width: 110px; width: auto;"
@@ -141,7 +141,7 @@
             onAndChange(){
                 // true '且' -and false '或' -or
                 this.andOr = !this.andOr
-                this.andOrValue = this.andOr ? 'and': 'or'
+                this.andOrValue = this.andOr ? 'AND': 'OR'
                 this.onBlurChange()
             },
             onAddItem(){
@@ -153,8 +153,8 @@
                     is_enum: false,
                     enumList: null,
                     is_section: false,
-                    section_1: 0,
-                    section_2: 0
+                    section_1: '',
+                    section_2: ''
                 }
                 this.selectList.push(obj);
                 this.onfieldChange(obj, this.selectList.length - 1)
@@ -201,8 +201,8 @@
                         }
                         val.inputValue = ''
                         val.is_section = false
-                        val.section_1 = 0
-                        val.section_2 = 0
+                        val.section_1 = ''
+                        val.section_2 = ''
                     }
                 })
             },
@@ -216,6 +216,7 @@
                 }else {
                     val.is_section = false
                 }
+                this.onBlurChange()
             },
 
             // 所有的输入框, 选择框, 数字输入框,  其中一个失去焦点以后 更换事件;

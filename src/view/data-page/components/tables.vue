@@ -130,7 +130,7 @@
                         }
                         this.tableCloumns = ot
                     }
-
+                    console.log(this.tableList)
                 }
                 return this.tableList
             },

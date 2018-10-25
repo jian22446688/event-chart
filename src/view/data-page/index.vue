@@ -268,6 +268,16 @@
                                 term.term[item.fieldValue] = item.inputValue
                                 must_not_term.push(term);
                                 break;
+                            case datatype.FILTER_GROUP_K_D_3:
+                                let obte = {}
+                                obte[item.fieldValue] = {gte: item.inputValue}
+                                range.push(obte)
+                                break;
+                            case datatype.FILTER_GROUP_K_D_4:
+                                let lte = {}
+                                lte[item.fieldValue] = {lte: item.inputValue}
+                                range.push(lte)
+                                break;
                         }
                         if (item.is_section){
                             let ob = {}

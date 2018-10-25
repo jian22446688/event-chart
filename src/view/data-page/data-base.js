@@ -3,12 +3,15 @@ export const CONDITION_GROUP_BY_ARRAY   = 'add_group_by_array'
 
 export const NAME_FILTER_GROUP_MUST     = 'filter_must'
 
-// 筛选条件中 是等于
+// 筛选条件中 是等于 // 筛选条件中 是不等于
 export const FILTER_GROUP_K_1           = 'k_1'
+export const FILTER_GROUP_K_2           = 'k_2'
 
 // 筛选条件中 long 是等于
-export const FILTER_GROUP_K_D_1         = 'l_d_1'
-export const FILTER_GROUP_K_D_2         = 'l_d_2'
+export const FILTER_GROUP_K_D_1         = 'l_d_1' // 等于
+export const FILTER_GROUP_K_D_2         = 'l_d_2' // 不等于
+export const FILTER_GROUP_K_D_3         = 'l_d_3' // 大于
+export const FILTER_GROUP_K_D_4         = 'l_d_4' // 小于
 export const FILTER_GROUP_L_D_5         = 'l_d_5' // 区间
 
 export const TOP_TABLE_DIST_A_1         = 'a_1' // 总数
@@ -20,8 +23,6 @@ export const TOP_TABLE_STATS_N_2        = 'n_2' // 最小值 stats
 export const TOP_TABLE_STATS_N_3        = 'n_3' // 总和 stats
 export const TOP_TABLE_STATS_N_4        = 'n_4' // 平均 stats
 
-// 筛选条件中 是不等于
-export const FILTER_GROUP_K_2           = 'k_2'
 
 export const defaultType = [
     {value: 'a_2', label: '触发用户数'},
@@ -510,6 +511,10 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
         if (type === 'piller')cType = 'bar'
         else if (type === 'line') cType = 'line'
         else if(type === 'cake') cType = 'pie'
+
+        console.log('cd -----------------------------------------------')
+        console.log(cData)
+
         cData[0].forEach(item => {
             let ser = {
                 name: item.lable,
@@ -647,6 +652,14 @@ const getTerm = (base, group, data, result) => {
     var ng = group.shift()
     if(group.length > 0){
         // 有下一层
+        // if (data[ng + "_term"].length === 0){
+        //     console.log('ter 0----------------------------------------------')
+        //     var nb = {...base}
+        //     nb[ng] = 0
+        //     nb = {...nb}
+        //     console.log(nb, ng)
+        //     result.push(nb)
+        // }
         for(var i in data[ng + "_term"]){
             var nb = {...base}
             var cd = {...data[ng + "_term"][i]}
@@ -654,6 +667,7 @@ const getTerm = (base, group, data, result) => {
             var nd = cd[nb[ng]]
             getTerm({...nb}, group.concat(), nd, result)
         }
+
     } else {
         // 最后一层
         for(var i in data[ng + "_term"]){
@@ -666,6 +680,15 @@ const getTerm = (base, group, data, result) => {
             nb = {...nb, ...d}
             result.push(nb)
         }
+        // if (data[ng + "_term"].length === 0){
+        //     console.log('ter 1----------------------------------------------')
+        //     var nb = {...base}
+        //     nb[ng] = 0
+        //     nb[ng + '_count'] = 0
+        //     nb = {...nb}
+        //     console.log(nb, ng)
+        //     result.push(nb)
+        // }
     }
 }
 
