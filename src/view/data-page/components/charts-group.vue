@@ -31,7 +31,7 @@
                         <Option v-for="item in reportDataListSet"
                                 :value="item.value"
                                 :key="item.value">
-                            <Icon :type="item.icon" />
+                            <font-awesome-icon :icon="item.icon" style="font-size: 15px" />
                             {{ item.title }}
                         </Option>
                     </Select>
@@ -89,7 +89,7 @@
                 isEventData: true,
                 modelDate: 'day',
                 dateOpen: false,
-                dateValue: ['2018-07-1','2018-7-31'],
+                dateValue: ['2018-07-1','2018-07-31'],
                 reportDataListSet: dataType.reportDataListSet,
                 reportDataListDate: dataType.reportDataListDate,
                 options2: {

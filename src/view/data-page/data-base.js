@@ -121,17 +121,17 @@ export const reportDataListSet = [
     {
         title: '线图',
         value: 'line',
-        icon: 'close'
+        icon: 'chart-line'
     },
     {
         title: '柱图',
         value: 'piller',
-        icon: 'close'
+        icon: 'chart-bar'
     },
     {
         title: '饼图',
         value: 'cake',
-        icon: 'ios-calendar-outline'
+        icon: 'chart-pie'
     },
 ]
 
@@ -505,16 +505,12 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
         })
         let series = []
         let legends = []
-        // let xAxis = data.x
-        let xAxis = []
+        let xAxis = data.x
+        // let xAxis = []
         let cType = 'bar'
         if (type === 'piller')cType = 'bar'
         else if (type === 'line') cType = 'line'
         else if(type === 'cake') cType = 'pie'
-
-        console.log('cd -----------------------------------------------')
-        console.log(cData)
-
         cData[0].forEach(item => {
             let ser = {
                 name: item.lable,
@@ -522,6 +518,7 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
                 stack: '总量',
                 data: []
             }
+            ser.data = xAxis.map(t => 0)
             legends.push(item.lable)
             series.push(ser)
         })
@@ -534,12 +531,9 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
                     vStr = countName
                 }
                 if (series[i]) {
-                    series[i].data.push(t[vStr] || 0)
+                    series[i].data[index] = (t[vStr] || 0)
                 }
             })
-            if (item[0]){
-                xAxis.push(item[0].date)
-            }
         })
         let cOption = {series: series, legend: legends, xAxix: xAxis}
         switch (type) {
@@ -558,7 +552,6 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
                 break;
             case 'piller': // 柱状图
                 let clData = cOption
-
                 let opba = {
                     tooltip: {trigger: 'item', // item axis none
                         axisPointer: {type: 'cross', label: {backgroundColor: '#6a7985'}},
@@ -575,25 +568,49 @@ export const getOptionData = (obj, data, tableData, type, countName) => {
                 let tabs = dataObj.x.map(dv => {
                     return tableData.filter(itt => itt.date === dv)
                 })
+                let vStr = 'count'
+                if (countName === 'count'){
+                    vStr = tempClo[tempClo.length -1].title + '_count'
+                }else {
+                    vStr = countName
+                }
                 tabs.forEach(tabitem => {
                     let oob = {name: '', value: 335}
-                    let vStr = 'count'
-                    if (countName === 'count'){
-                        vStr = tempClo[tempClo.length -1].title + '_count'
-                    }else {
-                        vStr = countName
-                    }
+                    console.log(tabitem)
                     if (tabitem.length > 0 ){
                         oob.name = tabitem[tabitem.length - 1]['lable']
                         oob.value = tabitem[tabitem.length - 1][vStr]
                         obj.push(oob)
                     }
                 })
-                let legend = obj.map(_ => _.name)
+                let akebObj = {}
+                tabs.forEach(item => {
+                    if (item.length > 0) {
+                        item.forEach(oitem => {
+                            let oi = {name: oitem.lable, value: oitem[vStr]}
+                            if(akebObj[oitem.lable] == undefined){
+                                akebObj[oitem.lable] = oitem[vStr]
+                            }else{
+                                let slen = oitem[vStr].toString().lastIndexOf('.')
+                                if (slen > 0) {
+                                    let nu = akebObj[oitem.lable] += oitem[vStr]
+                                    akebObj[oitem.lable] = parseFloat(nu.toFixed(slen))
+                                }else {
+                                    akebObj[oitem.lable] += oitem[vStr]
+                                }
+                            }
+                        })
+                    }
+                })
+                let oobje = Object.keys(akebObj).map(item => {
+                    return {name: item, value: akebObj[item]}
+                })
+                oobje = oobje.filter(item => item.name !== 'NA')
+                let legend = oobje.map(_ => _.name)
                 let opcakeb = {tooltip: {trigger: 'item', formatter: '{b} : {c}'},
                     legend: {orient: 'vertical', left: 'left', data: legend},
                     series: [{
-                        type: 'pie', radius: '55%', center: ['50%', '60%'], data: obj,
+                        type: 'pie', radius: '55%', center: ['50%', '60%'], data: oobje,
                         itemStyle: {emphasis: {shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)'}}}
                     ]
                 }
